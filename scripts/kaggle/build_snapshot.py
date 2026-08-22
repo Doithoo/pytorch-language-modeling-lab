@@ -87,7 +87,14 @@ def source_files() -> list[Path]:
     for relative in INCLUDE_ROOTS:
         path = ROOT / relative
         if path.is_dir():
-            files.extend(item for item in path.rglob("*") if item.is_file() and "__pycache__" not in item.parts)
+            files.extend(
+                item
+                for item in path.rglob("*")
+                if item.is_file()
+                and "__pycache__" not in item.parts
+                and not any(part.endswith(".egg-info") for part in item.parts)
+                and item.suffix != ".pyc"
+            )
         elif path.is_file():
             files.append(path)
     return sorted(set(files), key=lambda item: item.relative_to(ROOT).as_posix())

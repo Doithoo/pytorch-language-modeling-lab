@@ -1,11 +1,18 @@
 from __future__ import annotations
 
+import ast
+import base64
+import io
 import json
 import subprocess
 import sys
+import zipfile
 from pathlib import Path
 
-import tomllib
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10
+    import tomli as tomllib
 
 import language_model
 
@@ -37,4 +44,14 @@ def test_snapshot_builder_creates_compilable_runner(tmp_path: Path) -> None:
     )
     source = output.read_text(encoding="utf-8")
     assert "__SNAPSHOT_BASE64__" not in source
+    module = ast.parse(source)
+    payload = next(
+        ast.literal_eval(node.value)
+        for node in module.body
+        if isinstance(node, ast.Assign)
+        and isinstance(node.targets[0], ast.Name)
+        and node.targets[0].id == "SNAPSHOT_BASE64"
+    )
+    with zipfile.ZipFile(io.BytesIO(base64.b64decode(payload))) as archive:
+        assert not any(".egg-info/" in name or "__pycache__/" in name for name in archive.namelist())
     compile(source, str(output), "exec")

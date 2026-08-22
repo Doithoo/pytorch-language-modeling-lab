@@ -1,0 +1,59 @@
+data:
+  corpus_dir: data/raw
+  processed_dir: data/processed
+  manifest_dir: data/manifests
+  dataset_name: tiny_corpus
+  tokenizer_name: char
+  context_length: 128
+  stride: 128
+  split_ratios: [0.9, 0.05, 0.05]
+  seed: 42
+  num_workers: 0
+  window_mode: document
+
+tokenizer:
+  name: char
+  vocab_size: null
+  min_frequency: 1
+  special_tokens: ["<pad>", "<bos>", "<eos>", "<unk>"]
+
+model:
+  name: bigram
+  vocab_size: null
+  context_length: 128
+  n_layers: 1
+  n_heads: 1
+  d_model: 32
+  d_ff: 64
+  dropout: 0.0
+  positional_encoding: learned
+  tie_embeddings: false
+
+train:
+  max_steps: 1000
+  batch_size: 64
+  gradient_accumulation_steps: 1
+  learning_rate: 0.001
+  weight_decay: 0.0
+  warmup_steps: 0
+  max_grad_norm: 1.0
+  amp: false
+  eval_interval: 100
+  eval_batches: 50
+  save_interval: 100
+  log_interval: 20
+  best_metric: val_loss
+
+generation:
+  max_new_tokens: 200
+  temperature: 0.8
+  top_k: 40
+  top_p: 0.95
+  use_cache: false
+  seed: 42
+
+runtime:
+  device: auto
+  seed: 42
+  output_dir: artifacts
+  run_name: char-bigram

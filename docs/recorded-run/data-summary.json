@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "dataset_name": "tiny_shakespeare",
+  "source": {
+    "url": "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt",
+    "bytes": 1115394,
+    "sha256": "86c4e6aa9db7c042ec79f339dcb96d42b0075e16b8fc2e86bf0ca57e2dc565ed"
+  },
+  "normalization": "NFKC+line-endings+horizontal-space-v1",
+  "documents": {
+    "input": 7222,
+    "unique": 7148,
+    "dropped_duplicates": 74
+  },
+  "tokenizer": {
+    "name": "char",
+    "vocab_size": 69,
+    "fingerprint": "2f21f34c3e7146a043097c9d5c3e97a16de8d280f7e3a97fee031300ae5baf3e"
+  },
+  "context_length": 256,
+  "stride": 256,
+  "splits": {
+    "train": {"documents": 6433, "tokens": 1002843, "windows": 8090},
+    "valid": {"documents": 357, "tokens": 59422, "windows": 466},
+    "test": {"documents": 358, "tokens": 52065, "windows": 442}
+  },
+  "manifest_identity": "cb49ae6008e7e9c300356684d9503eb03724ca0b49e3eb874833e26873785a1c"
+}

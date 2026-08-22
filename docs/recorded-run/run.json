@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "completed_at": "2026-08-22",
+  "kaggle_url": "https://www.kaggle.com/code/yashowhoo/pytorch-language-modeling-lab-gpu",
+  "kernel_version": 2,
+  "source_snapshot": {
+    "bytes": 43412,
+    "sha256": "04f4cefa7483fb984822917e06af8d16115565f5b25d270d0d48f23afbf7006f"
+  },
+  "manifest_identity": "cb49ae6008e7e9c300356684d9503eb03724ca0b49e3eb874833e26873785a1c",
+  "best_checkpoint": {
+    "step": 3000,
+    "sha256": "c00c1cbaa5761640134c148695f09ece4f4bc299cb337d0a6aa029841b8af4ba",
+    "size_bytes": 129253377
+  },
+  "last_checkpoint": {
+    "step": 5000,
+    "sha256": "fb739e3d5dd0eebb178c77f9daaaf1765685971e294dad1f5e935fcb9cd6c05a"
+  },
+  "training_seconds": 835.1845218849999,
+  "pipeline_seconds": 881.325505391,
+  "processed_target_tokens": 39238634,
+  "parameters": 10763136,
+  "peak_memory_bytes": 2780630528,
+  "final_tokens_per_second": 46995.663345533394
+}

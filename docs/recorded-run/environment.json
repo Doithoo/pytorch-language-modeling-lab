@@ -1,0 +1,29 @@
+{
+  "cuda": {
+    "available": true,
+    "compatible": true,
+    "compute_capability": [
+      7,
+      5
+    ],
+    "current_device": 0,
+    "device_count": 2,
+    "name": "Tesla T4",
+    "supported_architectures": [
+      "sm_70",
+      "sm_75",
+      "sm_80",
+      "sm_86",
+      "sm_90",
+      "sm_100",
+      "sm_120"
+    ],
+    "torch_cuda_version": "12.8",
+    "total_memory_bytes": 15636037632
+  },
+  "disk_free_bytes": 20931112960,
+  "platform": "Linux-6.12.90+-x86_64-with-glibc2.35",
+  "python": "3.12.13",
+  "pytorch": "2.10.0+cu128",
+  "work_dir": "/kaggle/working/artifacts/kaggle-char-small"
+}

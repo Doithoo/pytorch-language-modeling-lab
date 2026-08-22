@@ -2,7 +2,7 @@
 
 - [Tutorial](tutorial/README.md) and [Chinese tutorial](tutorial/README.zh-CN.md)
 - [First run](guides/first-run.zh-CN.md)
-- [Kaggle training](guides/kaggle.zh-CN.md)
+- [Using published models](guides/using-models.md) and [使用已发布模型](guides/using-models.zh-CN.md)
 - [Configuration reference](reference/config-reference.zh-CN.md)
 - [Data manifest reference](reference/data-manifest.zh-CN.md)
 - [Metrics reference](reference/metrics.zh-CN.md)

@@ -4,6 +4,7 @@
 
 - [教程首页](tutorial/README.zh-CN.md)
 - [Kaggle 训练指南](guides/kaggle.zh-CN.md)
+- [使用已发布模型](guides/using-models.zh-CN.md)
 - [配置与 dry run](guides/first-run.zh-CN.md)
 - [排障](guides/troubleshooting.zh-CN.md)
 

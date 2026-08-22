@@ -12,7 +12,7 @@ Kaggle's free GPU environment is the primary environment for complete training a
 - Document-level train/validation/test splitting with leak-resistant manifests.
 - Optional character-balanced splitting and source-group isolation.
 - Memory-mapped token windows with shifted next-token targets.
-- Bigram baseline and readable pre-LN causal Transformer.
+- Bigram baseline and readable pre-LN causal Transformer with learned or rotary positions.
 - AdamW, warmup/cosine decay, AMP, gradient accumulation, and clipping.
 - Versioned `best.pt`/`last.pt` checkpoints with optimizer, scheduler, scaler, tokenizer, and RNG state.
 - Token-weighted loss, perplexity, top-1/top-5 accuracy, bits-per-character/byte, configurable prompt suites, and KV caching.

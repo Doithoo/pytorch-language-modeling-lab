@@ -12,19 +12,43 @@ from .spec import PastKeyValue
 
 
 class CausalSelfAttention(nn.Module):
-    def __init__(self, d_model: int, n_heads: int, dropout: float, implementation: str = "readable") -> None:
+    def __init__(
+        self,
+        d_model: int,
+        n_heads: int,
+        dropout: float,
+        implementation: str = "readable",
+        rotary: bool = False,
+    ) -> None:
         super().__init__()
         if d_model % n_heads:
             raise ValueError("d_model must be divisible by n_heads")
+        if implementation not in {"readable", "sdpa"}:
+            raise ValueError(f"unknown attention implementation: {implementation}")
         self.n_heads = n_heads
         self.head_dim = d_model // n_heads
         self.implementation = implementation
-        if implementation not in {"readable", "sdpa"}:
-            raise ValueError(f"unknown attention implementation: {implementation}")
+        self.rotary = rotary
+        if rotary and self.head_dim % 2:
+            raise ValueError("rotary positional encoding requires an even attention head dimension")
         self.qkv = nn.Linear(d_model, 3 * d_model, bias=False)
         self.output = nn.Linear(d_model, d_model, bias=False)
         self.attention_dropout = nn.Dropout(dropout)
         self.residual_dropout = nn.Dropout(dropout)
+
+    def _apply_rotary(self, tensor: torch.Tensor, positions: torch.Tensor) -> torch.Tensor:
+        if not self.rotary:
+            return tensor
+        half = self.head_dim // 2
+        frequencies = torch.arange(half, device=tensor.device, dtype=torch.float32)
+        inverse = 1.0 / (10000.0 ** (frequencies / half))
+        angles = positions.to(torch.float32).unsqueeze(-1) * inverse.unsqueeze(0)
+        cos = angles.cos().to(dtype=tensor.dtype).view(1, 1, -1, half)
+        sin = angles.sin().to(dtype=tensor.dtype).view(1, 1, -1, half)
+        even = tensor[..., ::2]
+        odd = tensor[..., 1::2]
+        rotated = torch.stack((even * cos - odd * sin, even * sin + odd * cos), dim=-1)
+        return rotated.flatten(-2)
 
     def forward(
         self,
@@ -46,6 +70,11 @@ class CausalSelfAttention(nn.Module):
             if past_key.shape[:2] != (batch, self.n_heads) or past_key.shape != past_value.shape:
                 raise ValueError("invalid past_key_value shape")
             past_length = past_key.shape[2]
+        current_positions = torch.arange(past_length, past_length + time, device=x.device)
+        query = self._apply_rotary(query, current_positions)
+        key = self._apply_rotary(key, current_positions)
+
+        if past_key_value is not None:
             key = torch.cat((past_key, key), dim=2)
             value = torch.cat((past_value, value), dim=2)
 

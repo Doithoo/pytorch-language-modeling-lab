@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "release_version": "0.2.0",
+  "kaggle_url": "https://www.kaggle.com/code/yashowhoo/pytorch-language-modeling-lab-gpu-rope",
+  "kernel_version": 1,
+  "positional_encoding": "rotary",
+  "attention_implementation": "sdpa",
+  "source_snapshot": {
+    "bytes": 141791,
+    "sha256": "cb95eb650b3ce22b3cd1e81e274e48f4c66a2125c5b709d2544927814eafce72"
+  },
+  "manifest_identity": "3059ee14b15d07394999ce01c0fec50398207999c13efbeea92dba8da2ca12b0",
+  "checkpoints": {
+    "best": {
+      "step": 2500,
+      "bytes": 128109825,
+      "sha256": "5177d5bbc866dc3dca7bfe4bcf77083eff5735c0588edd6e1aa36b792b576c74"
+    },
+    "last": {
+      "step": 5000,
+      "bytes": 128109825,
+      "sha256": "d3a4030e4ada3a18524a573697374beb63bf92d01774d760a98c6a2abb249ad0"
+    }
+  },
+  "note": "Checkpoint binaries are intentionally excluded from Git. Download them from the RoPE kernel output."
+}

@@ -43,3 +43,17 @@ def test_v2_recorded_run_provenance_and_metrics() -> None:
     with zipfile.ZipFile(BytesIO(archive)) as bundle:
         assert "configs/kaggle_char_small_sdpa.yaml" in bundle.namelist()
         assert "requirements.lock" in bundle.namelist()
+
+
+def test_v2_rope_recorded_run_provenance() -> None:
+    directory = RECORDED / "rope"
+    provenance = json.loads((directory / "provenance.json").read_text(encoding="utf-8"))
+    run = json.loads((directory / "run.json").read_text(encoding="utf-8"))
+    evaluation = json.loads((directory / "evaluation" / "summary.json").read_text(encoding="utf-8"))
+    assert provenance["kernel_version"] == 1
+    assert provenance["positional_encoding"] == "rotary"
+    assert run["status"] == "completed"
+    assert run["manifest_identity"] == provenance["manifest_identity"]
+    assert evaluation["checkpoint_sha256"] == provenance["checkpoints"]["best"]["sha256"]
+    assert evaluation["test"]["perplexity"] < 3.6
+    assert evaluation["test"]["accuracy_top1"] > 0.60

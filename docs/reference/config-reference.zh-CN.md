@@ -20,7 +20,7 @@
 
 ## `model`
 
-`name` 是 `bigram` 或 `transformer_decoder`。Transformer 使用 `n_layers`、`n_heads`、`d_model`、`d_ff`、`dropout`；`d_model` 必须整除 `n_heads`。`attention_implementation` 可选 `readable` 或 `sdpa`；前者用于教学，后者调用 PyTorch scaled dot-product attention。`vocab_size` 通常为 null，由 manifest 解析。
+`name` 是 `bigram` 或 `transformer_decoder`。Transformer 使用 `n_layers`、`n_heads`、`d_model`、`d_ff`、`dropout`；`d_model` 必须整除 `n_heads`。`positional_encoding` 可选 `learned` 或 `rotary`；RoPE 要求每个 attention head 的维度为偶数。`attention_implementation` 可选 `readable` 或 `sdpa`；前者用于教学，后者调用 PyTorch scaled dot-product attention。`vocab_size` 通常为 null，由 manifest 解析。
 
 ## `train`
 

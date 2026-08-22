@@ -36,12 +36,14 @@
 在相同 `0.2.0` 配置下，使用 PyTorch SDPA 完成 attention 实现对照。SDPA 用时 666.0 秒，吞吐 58,921.9 token/s，峰值 CUDA 显存约 1.66 GiB；readable 版本用时 940.2 秒，吞吐 41,735.7 token/s，峰值显存约 2.64 GiB。测试 perplexity 分别为 3.818914 和 3.827989，测试 top-1 分别为 0.590230 和 0.586632。详见 [SDPA 对照记录](sdpa/README.zh-CN.md)。
 
 
-- [`config.yaml`](config.yaml)：runner 实际解析后的配置。
+在相同 `0.2.0` 配置下，使用 RoPE positional encoding 的 SDPA 运行 test perplexity 为 **3.570483**、top-1 为 **0.606417**，learned + SDPA 对照分别为 3.818914 和 0.590230。RoPE 吞吐较低，为 50,160.6 token/s。详见 [RoPE 对照记录](rope/README.zh-CN.md)。
+
+
 - [`environment.json`](environment.json)：Python、PyTorch、CUDA、GPU、依赖和确定性设置。
 - [`manifest.json`](manifest.json)：数据身份和 split 元数据。
 - [`metrics.csv`](metrics.csv)：20 次验证记录，包含 top-1/top-5 accuracy。
 - [`evaluation/summary.json`](evaluation/summary.json)：`best.pt` 的 valid/test 指标。
 - [`evaluation/prompts.jsonl`](evaluation/prompts.jsonl)：固定 prompt 和生成结果。
-- [`comparison.json`](comparison.json)：相同数据身份下 readable/SDPA 对照的机器可读结果。
+- [`comparison.json`](comparison.json)：相同数据身份下 readable/SDPA/RoPE 对照的机器可读结果。
 
 checkpoint 二进制文件不提交 Git。需要模型时从 kernel version 3 下载 `artifacts/kaggle-char-small/checkpoints/best.pt` 或 `last.pt`，并使用 [`provenance.json`](provenance.json) 校验 hash。

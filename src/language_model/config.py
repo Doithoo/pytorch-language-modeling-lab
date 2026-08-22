@@ -259,8 +259,10 @@ def validate_config(cfg: ExperimentConfig) -> None:
         raise ConfigError("model.d_model must be divisible by model.n_heads")
     if not 0 <= m.dropout < 1:
         raise ConfigError("model.dropout must be in [0, 1)")
-    if m.positional_encoding != "learned":
-        raise ConfigError("only learned positional encoding is supported")
+    if m.positional_encoding not in {"learned", "rotary"}:
+        raise ConfigError("model.positional_encoding must be learned or rotary")
+    if m.positional_encoding == "rotary" and (m.d_model // m.n_heads) % 2:
+        raise ConfigError("rotary positional encoding requires an even attention head dimension")
     if m.attention_implementation not in {"readable", "sdpa"}:
         raise ConfigError("model.attention_implementation must be readable or sdpa")
     for name in ("max_steps", "batch_size", "gradient_accumulation_steps", "eval_interval", "save_interval"):

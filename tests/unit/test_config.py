@@ -20,6 +20,16 @@ def test_config_rejects_invalid_runtime_types() -> None:
         config_from_dict({"generation": {"prompts": []}})
 
 
+def test_config_accepts_rotary_position_encoding() -> None:
+    cfg = config_from_dict({"model": {"positional_encoding": "rotary"}})
+    assert cfg.model.positional_encoding == "rotary"
+
+
+def test_config_rejects_odd_rotary_head_dimension() -> None:
+    with pytest.raises(ConfigError, match="even attention head dimension"):
+        config_from_dict({"model": {"positional_encoding": "rotary", "d_model": 30, "n_heads": 2}})
+
+
 def test_config_roundtrip_and_overrides() -> None:
     cfg = config_from_dict({"train": {"max_steps": 10, "warmup_steps": 0}, "runtime": {"device": "cpu"}})
     assert config_from_dict(config_to_dict(cfg)) == cfg

@@ -34,6 +34,7 @@ class DecoderBlock(nn.Module):
             cfg.n_heads,
             cfg.dropout,
             cfg.attention_implementation,
+            rotary=cfg.positional_encoding == "rotary",
         )
         self.mlp_norm = nn.LayerNorm(cfg.d_model)
         self.mlp = FeedForward(cfg.d_model, cfg.d_ff, cfg.dropout)
@@ -65,7 +66,9 @@ class TransformerLanguageModel(nn.Module):
         self.context_length = cfg.context_length
         self.pad_id = pad_id
         self.token_embedding = nn.Embedding(cfg.vocab_size, cfg.d_model)
-        self.position_embedding = nn.Embedding(cfg.context_length, cfg.d_model)
+        self.position_embedding = (
+            nn.Embedding(cfg.context_length, cfg.d_model) if cfg.positional_encoding == "learned" else None
+        )
         self.dropout = nn.Dropout(cfg.dropout)
         self.blocks = nn.ModuleList([DecoderBlock(cfg) for _ in range(cfg.n_layers)])
         self.final_norm = nn.LayerNorm(cfg.d_model)
@@ -101,7 +104,9 @@ class TransformerLanguageModel(nn.Module):
         if past_length + time > self.context_length:
             raise ValueError(f"sequence length {past_length + time} exceeds context length {self.context_length}")
         positions = torch.arange(past_length, past_length + time, device=input_ids.device)
-        x = self.token_embedding(input_ids) + self.position_embedding(positions).unsqueeze(0)
+        x = self.token_embedding(input_ids)
+        if self.position_embedding is not None:
+            x = x + self.position_embedding(positions).unsqueeze(0)
         x = self.dropout(x)
 
         presents: list[PastKeyValue] = []

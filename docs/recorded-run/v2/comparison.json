@@ -30,7 +30,22 @@
       "tokens_per_second": 58921.930303737245,
       "training_seconds": 666.0469576,
       "peak_memory_bytes": 1779764736
+    },
+    {
+      "name": "rope",
+      "attention_implementation": "sdpa",
+      "positional_encoding": "rotary",
+      "kernel": "yashowhoo/pytorch-language-modeling-lab-gpu-rope@1",
+      "best_step": 2500,
+      "valid_perplexity": 3.5482459936161796,
+      "test_perplexity": 3.5704831492648186,
+      "test_accuracy_top1": 0.6064169261415282,
+      "test_accuracy_top5": 0.8773280213510743,
+      "test_bits_per_character": 1.8489205464014118,
+      "tokens_per_second": 50160.614182248486,
+      "training_seconds": 782.366818388,
+      "peak_memory_bytes": 1928037888
     }
   ],
-  "interpretation": "SDPA is materially faster and uses less memory in this single-seed run. Quality differences are small and should not be treated as statistically significant."
+  "interpretation": "SDPA is materially faster and uses less memory than the readable implementation. RoPE improved quality in this single-seed Tiny Shakespeare run while reducing throughput relative to learned positions; neither quality conclusion should be treated as statistically significant without repeated seeds or larger data."
 }

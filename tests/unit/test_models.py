@@ -52,3 +52,28 @@ def test_sdpa_attention_matches_readable_attention() -> None:
         expected = readable_model(inputs).logits
         actual = sdpa_model(inputs).logits
     assert torch.allclose(expected, actual, atol=1e-5)
+
+
+def test_rotary_cache_matches_full_forward() -> None:
+    rotary = replace(model_config(), positional_encoding="rotary")
+    torch.manual_seed(23)
+    model = TransformerLanguageModel(rotary, pad_id=0).eval()
+    ids = torch.tensor([[1, 5, 6, 7]])
+    with torch.inference_mode():
+        full = model(ids).logits[:, -1]
+        prefix = model(ids[:, :3], use_cache=True)
+        cached = model(ids[:, 3:], past_key_values=prefix.past_key_values, use_cache=True).logits[:, -1]
+    assert torch.allclose(full, cached, atol=1e-5)
+
+
+def test_rotary_is_causal() -> None:
+    rotary = replace(model_config(), positional_encoding="rotary")
+    torch.manual_seed(29)
+    model = TransformerLanguageModel(rotary, pad_id=0).eval()
+    left = torch.tensor([[1, 5, 6, 7, 8]])
+    right = left.clone()
+    right[0, 4] = 9
+    with torch.inference_mode():
+        left_logits = model(left).logits
+        right_logits = model(right).logits
+    assert torch.allclose(left_logits[:, :4], right_logits[:, :4], atol=1e-6)

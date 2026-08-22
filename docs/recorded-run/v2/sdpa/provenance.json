@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "release_version": "0.2.0",
+  "kaggle_url": "https://www.kaggle.com/code/yashowhoo/pytorch-language-modeling-lab-gpu-sdpa",
+  "kernel_version": 1,
+  "attention_implementation": "sdpa",
+  "source_snapshot": {
+    "bytes": 140529,
+    "sha256": "0514eeb1cd334abb6b8ca2272cdc804308c9015083057637493da01a7f1ff7b2"
+  },
+  "manifest_identity": "3059ee14b15d07394999ce01c0fec50398207999c13efbeea92dba8da2ca12b0",
+  "checkpoints": {
+    "best": {
+      "step": 3250,
+      "bytes": 129253825,
+      "sha256": "3f4d4e219a2c24ac0d418547b267f358f5882fe5bcd66d09e5c2a4be7c96d019"
+    },
+    "last": {
+      "step": 5000,
+      "bytes": 129253825,
+      "sha256": "bb776c847119d710ee6612cb88e9d68edb7e0d218a73cf72a1c18af941dd2c98"
+    }
+  },
+  "note": "Checkpoint binaries are intentionally excluded from Git. Download them from the SDPA kernel output."
+}

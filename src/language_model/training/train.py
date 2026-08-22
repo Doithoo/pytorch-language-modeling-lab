@@ -9,15 +9,16 @@ from typing import Any
 import torch
 from torch.utils.data import DataLoader
 
-from ..config import ExperimentConfig, config_from_dict, config_to_dict, resolve_vocab_size
+from ..config import ExperimentConfig, config_to_dict, resolve_vocab_size
 from ..data import TokenWindowDataset, default_manifest_path, load_manifest
-from ..evaluation.metrics import evaluate_model
+from ..evaluation.metrics import enrich_text_normalized_metrics, evaluate_model
 from ..generation import generate_text
 from ..models import build_model
 from ..preflight import environment_info, resolve_device
 from ..tokenization import load_tokenizer
-from ..utils import count_parameters, set_seed, sha256_file, worker_seed, write_json, write_yaml
-from .checkpoint import load_checkpoint, validate_checkpoint_identity
+from ..utils import atomic_write_text, count_parameters, set_seed, sha256_file, worker_seed, write_json, write_yaml
+from .checkpoint import load_checkpoint, validate_checkpoint_identity, validate_resume_contract
+from .sampler import ResumableBatchSampler
 from .trainer import Trainer
 
 
@@ -26,18 +27,24 @@ def _loader(
     cfg: ExperimentConfig,
     *,
     shuffle: bool,
-) -> DataLoader[tuple[torch.Tensor, torch.Tensor]]:
-    generator = torch.Generator().manual_seed(cfg.runtime.seed)
-    return DataLoader(
-        dataset,
-        batch_size=cfg.train.batch_size,
+    device: torch.device,
+) -> tuple[DataLoader[tuple[torch.Tensor, torch.Tensor]], ResumableBatchSampler]:
+    sampler = ResumableBatchSampler(
+        len(dataset),
+        cfg.train.batch_size,
+        seed=cfg.runtime.seed,
         shuffle=shuffle,
+    )
+    loader = DataLoader(
+        dataset,
+        batch_sampler=sampler,
         num_workers=cfg.data.num_workers,
-        pin_memory=cfg.runtime.device in {"auto", "cuda"},
+        pin_memory=device.type == "cuda",
         worker_init_fn=worker_seed if cfg.data.num_workers else None,
-        generator=generator,
+        generator=torch.Generator().manual_seed(cfg.runtime.seed),
         persistent_workers=cfg.data.num_workers > 0,
     )
+    return loader, sampler
 
 
 def _validate_data_contract(cfg: ExperimentConfig, manifest: dict[str, Any]) -> None:
@@ -47,6 +54,10 @@ def _validate_data_contract(cfg: ExperimentConfig, manifest: dict[str, Any]) -> 
         raise ValueError("config window settings do not match manifest")
     if manifest["tokenizer"]["name"] != cfg.tokenizer.name:
         raise ValueError("config tokenizer does not match manifest")
+    if manifest.get("split_strategy", "document_count") != cfg.data.split_strategy:
+        raise ValueError("config split_strategy does not match manifest")
+    if manifest.get("group_by_source", False) != cfg.data.group_by_source:
+        raise ValueError("config group_by_source does not match manifest")
 
 
 def run_training(
@@ -55,6 +66,7 @@ def run_training(
     manifest_path: str | Path | None = None,
     resume_path: str | Path | None = None,
     dry_run: bool = False,
+    stop_after_steps: int | None = None,
 ) -> Path | None:
     path = Path(manifest_path) if manifest_path else default_manifest_path(cfg.data.manifest_dir, cfg.data.dataset_name)
     manifest = load_manifest(path)
@@ -64,14 +76,20 @@ def run_training(
         raise ValueError("tokenizer fingerprint does not match manifest")
     cfg = resolve_vocab_size(cfg, tokenizer.vocab_size)
     device = resolve_device(cfg.runtime.device)
-    set_seed(cfg.runtime.seed)
+    set_seed(cfg.runtime.seed, deterministic=cfg.runtime.deterministic)
 
     train_dataset = TokenWindowDataset(path, "train", verify_hash=not dry_run)
     valid_dataset = TokenWindowDataset(path, "valid", verify_hash=not dry_run)
-    train_loader = _loader(train_dataset, cfg, shuffle=True)
-    valid_loader = _loader(valid_dataset, cfg, shuffle=False)
+    train_loader, train_sampler = _loader(train_dataset, cfg, shuffle=True, device=device)
+    valid_loader, _ = _loader(valid_dataset, cfg, shuffle=False, device=device)
     model = build_model(cfg.model, tokenizer.pad_id).to(device)
     total_parameters, trainable_parameters = count_parameters(model)
+
+    resume_payload: dict[str, Any] | None = None
+    if resume_path is not None:
+        resume_payload = load_checkpoint(resume_path, map_location=device)
+        validate_checkpoint_identity(resume_payload, manifest["identity"], tokenizer)
+        validate_resume_contract(resume_payload, cfg, train_sampler.contract())
 
     if dry_run:
         input_ids, targets = next(iter(train_loader))
@@ -97,8 +115,18 @@ def run_training(
         return None
 
     run_dir = cfg.runtime.output_dir / cfg.runtime.run_name
-    if run_dir.exists() and any(run_dir.iterdir()) and resume_path is None:
+    if run_dir.exists() and any(run_dir.iterdir()) and resume_payload is None:
         raise FileExistsError(f"run directory is not empty: {run_dir}")
+    if resume_payload is not None and float(resume_payload["trainer_state"]["best_val_loss"]) < float("inf"):
+        expected_best = run_dir / "checkpoints" / "best.pt"
+        if not expected_best.is_file():
+            write_json(
+                run_dir / "resume-warning.json",
+                {
+                    "warning": "historical best checkpoint was not present; final evaluation will use the resumed last checkpoint",
+                    "resume_checkpoint": str(resume_path),
+                },
+            )
     run_dir.mkdir(parents=True, exist_ok=True)
     tokenizer.save(run_dir / "tokenizer")
     write_yaml(run_dir / "config.yaml", config_to_dict(cfg))
@@ -126,45 +154,86 @@ def run_training(
         output_dir=run_dir,
         manifest_identity=manifest["identity"],
         tokenizer=tokenizer,
+        train_sampler=train_sampler,
     )
-    if resume_path is not None:
-        payload = load_checkpoint(resume_path, map_location=device)
-        validate_checkpoint_identity(payload, manifest["identity"], tokenizer)
-        checkpoint_cfg = config_from_dict(payload["config"])
-        if checkpoint_cfg.model != cfg.model:
-            raise ValueError("resume checkpoint model configuration does not match current configuration")
-        trainer.resume(payload)
-    training_summary = trainer.fit()
+    if resume_payload is not None:
+        trainer.resume(resume_payload)
+    try:
+        training_summary = trainer.fit(stop_after_steps=stop_after_steps)
+        if stop_after_steps is not None and training_summary["status"] == "interrupted":
+            write_json(
+                run_dir / "run.json",
+                {
+                    "status": "interrupted",
+                    "device": str(device),
+                    "manifest_identity": manifest["identity"],
+                    "global_step": trainer.global_step,
+                    "micro_step": trainer.micro_step,
+                    "processed_tokens": trainer.processed_tokens,
+                },
+            )
+            return run_dir
 
-    best_path = run_dir / "checkpoints" / "best.pt"
-    best = load_checkpoint(best_path, map_location=device)
-    model.load_state_dict(best["model_state"])
-    test_dataset = TokenWindowDataset(path, "test", verify_hash=True)
-    test_loader = _loader(test_dataset, cfg, shuffle=False)
-    valid_metrics = evaluate_model(model, valid_loader, device, amp=cfg.train.amp)
-    test_metrics = evaluate_model(model, test_loader, device, amp=cfg.train.amp)
-    evaluation_dir = run_dir / "evaluation"
-    evaluation_dir.mkdir(exist_ok=True)
-    evaluation = {
-        "manifest_identity": manifest["identity"],
-        "checkpoint": str(best_path.name),
-        "checkpoint_sha256": sha256_file(best_path),
-        "valid": valid_metrics,
-        "test": test_metrics,
-    }
-    write_json(evaluation_dir / "summary.json", evaluation)
-    sample = generate_text(model, tokenizer, "The ", cfg.generation)
-    (evaluation_dir / "prompts.jsonl").write_text(json.dumps(sample, ensure_ascii=False) + "\n", encoding="utf-8")
-    final_summary = {
-        **training_summary,
-        "status": "completed",
-        "device": str(device),
-        "parameters": total_parameters,
-        "peak_memory_bytes": torch.cuda.max_memory_allocated(device) if device.type == "cuda" else 0,
-        "best_checkpoint_sha256": evaluation["checkpoint_sha256"],
-        "valid": valid_metrics,
-        "test": test_metrics,
-    }
-    write_json(run_dir / "run.json", final_summary)
-    write_json(run_dir / "kaggle-run-summary.json", final_summary)
-    return run_dir
+        best_path = run_dir / "checkpoints" / "best.pt"
+        if not best_path.is_file():
+            best_path = run_dir / "checkpoints" / "last.pt"
+        best = load_checkpoint(best_path, map_location=device)
+        model.load_state_dict(best["model_state"])
+        test_dataset = TokenWindowDataset(path, "test", verify_hash=True)
+        test_loader, _ = _loader(test_dataset, cfg, shuffle=False, device=device)
+        valid_metrics = enrich_text_normalized_metrics(
+            evaluate_model(model, valid_loader, device, amp=cfg.train.amp),
+            manifest["splits"]["valid"],
+        )
+        test_metrics = enrich_text_normalized_metrics(
+            evaluate_model(model, test_loader, device, amp=cfg.train.amp),
+            manifest["splits"]["test"],
+        )
+        evaluation_dir = run_dir / "evaluation"
+        evaluation_dir.mkdir(exist_ok=True)
+        evaluation = {
+            "manifest_identity": manifest["identity"],
+            "checkpoint": str(best_path.name),
+            "checkpoint_sha256": sha256_file(best_path),
+            "valid": valid_metrics,
+            "test": test_metrics,
+        }
+        write_json(evaluation_dir / "summary.json", evaluation)
+        samples = [generate_text(model, tokenizer, prompt, cfg.generation) for prompt in cfg.generation.prompts]
+        atomic_write_text(
+            evaluation_dir / "prompts.jsonl",
+            "".join(json.dumps(sample, ensure_ascii=False) + "\n" for sample in samples),
+        )
+        final_summary = {
+            **training_summary,
+            "status": "completed",
+            "device": str(device),
+            "manifest_identity": manifest["identity"],
+            "tokenizer_fingerprint": tokenizer.fingerprint(),
+            "parameters": total_parameters,
+            "trainable_parameters": trainable_parameters,
+            "peak_memory_bytes": torch.cuda.max_memory_allocated(device) if device.type == "cuda" else 0,
+            "best_checkpoint": {
+                "step": int(best["trainer_state"]["global_step"]),
+                "sha256": evaluation["checkpoint_sha256"],
+            },
+            "valid": valid_metrics,
+            "test": test_metrics,
+        }
+        write_json(run_dir / "run.json", final_summary)
+        write_json(run_dir / "kaggle-run-summary.json", final_summary)
+        return run_dir
+    except BaseException as exc:
+        write_json(
+            run_dir / "run.json",
+            {
+                "status": "interrupted" if isinstance(exc, KeyboardInterrupt) else "failed",
+                "device": str(device),
+                "manifest_identity": manifest["identity"],
+                "global_step": trainer.global_step,
+                "micro_step": trainer.micro_step,
+                "processed_tokens": trainer.processed_tokens,
+                "error": {"type": type(exc).__name__, "message": str(exc)},
+            },
+        )
+        raise

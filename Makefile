@@ -1,4 +1,4 @@
-.PHONY: sync lint format-check typecheck test build check kaggle-runner
+.PHONY: sync lint format-check typecheck test build package-check check kaggle-runner
 
 sync:
 	uv sync --locked --extra dev
@@ -13,7 +13,10 @@ typecheck:
 	uv run mypy
 
 test:
-	uv run pytest -W error::DeprecationWarning
+	uv run python -m pytest $(shell find tests -type f -name 'test_*.py' | sort) -W error::DeprecationWarning
+
+package-check: build
+	uv run twine check dist/*
 
 build:
 	uv build
@@ -21,4 +24,4 @@ build:
 kaggle-runner:
 	uv run python scripts/kaggle/build_snapshot.py
 
-check: lint format-check typecheck test build
+check: lint format-check typecheck test package-check

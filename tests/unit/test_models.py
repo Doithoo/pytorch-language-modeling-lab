@@ -1,3 +1,5 @@
+from dataclasses import replace
+
 import torch
 
 from language_model.config import ModelConfig
@@ -37,12 +39,16 @@ def test_transformer_is_causal() -> None:
     assert torch.allclose(left_logits[:, :4], right_logits[:, :4], atol=1e-6)
 
 
-def test_kv_cache_matches_full_forward() -> None:
-    torch.manual_seed(0)
-    model = TransformerLanguageModel(model_config(), pad_id=0).eval()
-    ids = torch.tensor([[1, 5, 6, 7]])
+def test_sdpa_attention_matches_readable_attention() -> None:
+    readable = model_config()
+    sdpa = replace(readable, attention_implementation="sdpa")
+    torch.manual_seed(11)
+    readable_model = TransformerLanguageModel(readable, pad_id=0).eval()
+    torch.manual_seed(11)
+    sdpa_model = TransformerLanguageModel(sdpa, pad_id=0).eval()
+    sdpa_model.load_state_dict(readable_model.state_dict())
+    inputs = torch.tensor([[1, 5, 6, 7]])
     with torch.inference_mode():
-        full = model(ids).logits[:, -1]
-        prefix = model(ids[:, :3], use_cache=True)
-        cached = model(ids[:, 3:], past_key_values=prefix.past_key_values, use_cache=True).logits[:, -1]
-    assert torch.allclose(full, cached, atol=1e-5)
+        expected = readable_model(inputs).logits
+        actual = sdpa_model(inputs).logits
+    assert torch.allclose(expected, actual, atol=1e-5)

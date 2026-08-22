@@ -11,7 +11,8 @@
 - `context_length`、`stride`：窗口长度和起点间隔。
 - `split_ratios`：三个正数，和必须为 1。
 - `num_workers`：DataLoader worker 数。
-- `window_mode`：当前固定为 `document`。
+- `split_strategy`：`document_count` 或 `character_balanced`；后者按规范化字符数近似平衡 split。
+- `group_by_source`：按 source 分组切分，适合多书籍、多文件语料；单一 source 不应开启。
 
 ## `tokenizer`
 
@@ -19,7 +20,7 @@
 
 ## `model`
 
-`name` 是 `bigram` 或 `transformer_decoder`。Transformer 使用 `n_layers`、`n_heads`、`d_model`、`d_ff`、`dropout`；`d_model` 必须整除 `n_heads`。`vocab_size` 通常为 null，由 manifest 解析。
+`name` 是 `bigram` 或 `transformer_decoder`。Transformer 使用 `n_layers`、`n_heads`、`d_model`、`d_ff`、`dropout`；`d_model` 必须整除 `n_heads`。`attention_implementation` 可选 `readable` 或 `sdpa`；前者用于教学，后者调用 PyTorch scaled dot-product attention。`vocab_size` 通常为 null，由 manifest 解析。
 
 ## `train`
 
@@ -27,8 +28,8 @@
 
 ## `generation`
 
-包含最大新 token 数、temperature、top-k、top-p、KV cache 和 seed。
+包含最大新 token 数、temperature、top-k、top-p、KV cache、seed 和 `prompts`。训练完成后会为每个 prompt 写一行 JSONL。
 
 ## `runtime`
 
-`device` 是 auto/cpu/cuda/mps；`output_dir/run_name` 构成运行目录。新训练拒绝写入非空目录。
+`device` 是 auto/cpu/cuda/mps；`output_dir/run_name` 构成运行目录。`deterministic=true` 会启用 PyTorch 确定性算法和固定 CUDA 设置。新训练拒绝写入非空目录。

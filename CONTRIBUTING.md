@@ -1,11 +1,15 @@
 # Contributing
 
-Thank you for improving this learning project.
+This is an educational, reproducible causal language-modeling lab. Keep contributions focused on the data, tokenizer, model, training, evaluation, inference, and documented experiment workflow.
 
-1. Keep changes scoped to causal language modeling and its reproducible training workflow.
-2. Add focused tests for data, tokenizer, model, checkpoint, or CLI contract changes.
-3. Keep the default test suite offline, CPU-only, and free of large fixtures.
-4. Run `make check` before opening a pull request.
-5. Update the relevant tutorial, guide, or reference page when behavior changes.
+Before opening a pull request:
 
-Do not commit raw corpora, generated token files, Kaggle credentials, or large checkpoints. A recorded run must come from a completed task and include its environment, configuration, data identity, and exact metrics.
+```bash
+uv sync --locked --extra dev
+make check
+pre-commit run --all-files
+```
+
+Add focused tests for behavior changes. Integration tests must remain offline, CPU-only, and based on synthetic corpora. Do not commit raw corpora, generated token files, credentials, or model checkpoints. A new recorded run must include its exact source snapshot, data identity, environment, configuration, metrics, and checkpoint hashes.
+
+When changing a public contract, update the relevant English and Chinese reference page and add a migration note if checkpoint or manifest compatibility changes.

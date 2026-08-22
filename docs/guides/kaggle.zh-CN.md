@@ -2,7 +2,7 @@
 
 这是本项目推荐的正式训练方式。Kaggle 免费 GPU 用于完整语料训练、验证、最终评估和生成样例；本地环境只需要能够运行 CPU 测试和 dry run，不要求安装 CUDA。
 
-> 已验证：kernel version 2 已在 Tesla T4 上完成 5,000 updates、最终 valid/test 评估和 KV-cache 生成。实际结果见[训练记录](../recorded-run/README.zh-CN.md)。
+> 已验证：`0.2.0` kernel version 3 已在 Tesla T4 上完成 5,000 updates、最终 valid/test 评估和 KV-cache 生成。实际结果见 [最新 v2 训练记录](../recorded-run/v2/README.zh-CN.md)。历史 version 2 记录仍保留用于追溯。
 
 ## 环境分工
 
@@ -67,7 +67,7 @@ uv run pytest -W error::DeprecationWarning
 uv run lm train --config configs/char_tiny.yaml --dry-run --device cpu
 ```
 
-然后构建 runner 使用的源码快照。快照至少包括 `src/`、`configs/`、必要脚本、锁文件和版本信息，并生成 SHA-256。不要让 runner 隐式读取未提交的父目录文件。
+然后构建 runner 使用的源码快照。当前构建器会把 `src/`、正式配置、`pyproject.toml`、`uv.lock` 和由锁文件导出的 `requirements.lock` 放入自包含归档，并生成 SHA-256。不要让 runner 隐式读取未提交的父目录文件。
 
 ## 安装并登录 Kaggle CLI
 

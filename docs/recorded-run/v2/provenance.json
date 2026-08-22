@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "release_version": "0.2.0",
+  "kaggle_url": "https://www.kaggle.com/code/yashowhoo/pytorch-language-modeling-lab-gpu",
+  "kernel_version": 3,
+  "source_snapshot": {
+    "bytes": 140529,
+    "sha256": "0514eeb1cd334abb6b8ca2272cdc804308c9015083057637493da01a7f1ff7b2"
+  },
+  "manifest_identity": "3059ee14b15d07394999ce01c0fec50398207999c13efbeea92dba8da2ca12b0",
+  "tokenizer_fingerprint": "2f21f34c3e7146a043097c9d5c3e97a16de8d280f7e3a97fee031300ae5baf3e",
+  "checkpoints": {
+    "best": {
+      "step": 2750,
+      "bytes": 129253825,
+      "sha256": "8efffb073a1c5caec7fc473900d06d7719628f531c517ee451950dca103fbb41"
+    },
+    "last": {
+      "step": 5000,
+      "bytes": 129253825,
+      "sha256": "9e959cc8810fa6a7795a431a21d4ab0abe538fb0c5d3d95d95658e88563e9e2f"
+    }
+  },
+  "note": "Checkpoint binaries are intentionally excluded from Git. Download them from Kaggle kernel version 3."
+}

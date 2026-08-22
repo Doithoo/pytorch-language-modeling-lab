@@ -69,6 +69,8 @@ This is god sickness in the house.
 | 被评估 `best.pt` | `c00c1cbaa5761640134c148695f09ece4f4bc299cb337d0a6aa029841b8af4ba` |
 | 最终 `last.pt` | `fb739e3d5dd0eebb178c77f9daaaf1765685971e294dad1f5e935fcb9cd6c05a` |
 
+仓库同时冻结了完成该任务的历史 kernel version 2 源码证据：[kernel-v2/](kernel-v2/)。当前目录下的 `kaggle/run_kaggle.py` 是按最新源码重建的未来提交 runner，hash 不必与历史记录相同。
+
 仓库保留以下轻量证据：
 
 - [`metrics.csv`](metrics.csv)：20 次验证记录。

@@ -21,6 +21,7 @@
 - [checkpoint 结构](reference/checkpoint-schema.zh-CN.md)
 - [指标定义](reference/metrics.zh-CN.md)
 - [模型选择](reference/model-zoo.zh-CN.md)
-- [Kaggle 运行记录](recorded-run/README.zh-CN.md)
+- [最新 v2 Kaggle 运行记录](recorded-run/v2/README.zh-CN.md)
+- [历史首次运行记录](recorded-run/README.zh-CN.md)
 
 完整页面会随着实施阶段逐步补齐；当前先以[实施方案](IMPLEMENTATION_PLAN.zh-CN.md)和[架构决策](architecture/0001-reproducible-causal-language-model-contracts.zh-CN.md)为准。

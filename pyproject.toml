@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=75,<86"]
+requires = ["setuptools>=83,<85"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pytorch-language-modeling-lab"
-version = "0.1.0"
+version = "0.2.0"
 description = "An educational, reproducible PyTorch causal language modeling lab"
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
@@ -13,7 +13,7 @@ license-files = ["LICENSE"]
 authors = [{ name = "Yashowhoo" }]
 keywords = ["pytorch", "language-modeling", "transformer", "gpt", "education"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Education",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
@@ -37,7 +37,15 @@ dev = [
     "tomli>=2,<3; python_version < '3.11'",
     "build>=1.2,<2",
     "matplotlib>=3.8,<4",
+    "pre-commit>=3,<5",
+    "twine>=5,<7",
 ]
+
+[project.urls]
+Homepage = "https://github.com/Doithoo/pytorch-language-modeling-lab"
+Repository = "https://github.com/Doithoo/pytorch-language-modeling-lab"
+Documentation = "https://github.com/Doithoo/pytorch-language-modeling-lab#readme"
+Issues = "https://github.com/Doithoo/pytorch-language-modeling-lab/issues"
 
 [project.scripts]
 lm = "language_model.cli:main"
@@ -47,6 +55,15 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 language_model = ["py.typed"]
+
+[tool.setuptools.data-files]
+"share/pytorch-language-modeling-lab/configs" = [
+    "configs/bigram_tiny.yaml",
+    "configs/bpe_tiny.yaml",
+    "configs/char_tiny.yaml",
+    "configs/kaggle_char_small.yaml",
+    "configs/kaggle_char_small_sdpa.yaml",
+]
 
 [tool.ruff]
 line-length = 120

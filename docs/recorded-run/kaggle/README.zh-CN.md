@@ -5,7 +5,7 @@
 - `kernel-metadata.json`：kernel id、GPU、Internet 和入口配置。
 - `run_kaggle.py`：由 `scripts/kaggle/build_snapshot.py` 生成的自包含 runner。
 
-runner 内嵌 `src/`、`configs/kaggle_char_small.yaml`、`pyproject.toml` 和 README 的确定性 ZIP 与 SHA-256。它会在 `/kaggle/working/project` 解包源码，安装项目，执行环境 preflight，下载并校验 Tiny Shakespeare，然后依次运行：
+runner 内嵌 `src/`、全部实验配置、`pyproject.toml`、`uv.lock`、导出的 requirements lock 和 README 的确定性 ZIP 与 SHA-256。它会在 `/kaggle/working/project` 解包源码，安装项目，执行环境 preflight，下载并校验 Tiny Shakespeare，然后依次运行：
 
 ```text
 prepare-data -> inspect-data -> train -> evaluate -> generate -> summarize

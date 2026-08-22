@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import dataclasses
 import math
+import types
 from collections.abc import Mapping
 from dataclasses import dataclass, field, fields, replace
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import Any, TypeVar, get_args, get_origin, get_type_hints
 
 import yaml
 
@@ -25,6 +26,8 @@ class DataConfig:
     seed: int = 42
     num_workers: int = 0
     window_mode: str = "document"
+    split_strategy: str = "document_count"
+    group_by_source: bool = False
 
 
 @dataclass(frozen=True)
@@ -47,6 +50,7 @@ class ModelConfig:
     dropout: float = 0.1
     positional_encoding: str = "learned"
     tie_embeddings: bool = True
+    attention_implementation: str = "readable"
 
 
 @dataclass(frozen=True)
@@ -76,6 +80,7 @@ class GenerationConfig:
     top_p: float = 0.95
     use_cache: bool = True
     seed: int = 42
+    prompts: list[str] = field(default_factory=lambda: ["The "])
 
 
 @dataclass(frozen=True)
@@ -85,6 +90,7 @@ class RuntimeConfig:
     output_dir: Path = Path("artifacts")
     run_name: str = "language-model"
     log_level: str = "info"
+    deterministic: bool = True
 
 
 @dataclass(frozen=True)
@@ -127,10 +133,40 @@ def _construct(cls: type[T], raw: Mapping[str, Any], section: str) -> T:
             if not isinstance(values[name], (str, Path)) or not str(values[name]):
                 raise ConfigError(f"{section}.{name} must be a non-empty path")
             values[name] = Path(values[name])
+    hints = get_type_hints(cls)
+    for name, value in values.items():
+        if not _matches_type(value, hints[name]):
+            raise ConfigError(f"{section}.{name} has invalid type; expected {_type_name(hints[name])}")
     try:
         return cls(**values)
     except TypeError as exc:
         raise ConfigError(f"invalid config section {section}: {exc}") from exc
+
+
+def _matches_type(value: Any, expected: Any) -> bool:
+    origin = get_origin(expected)
+    if origin is types.UnionType:
+        return any(_matches_type(value, option) for option in get_args(expected))
+    if origin is list:
+        arguments = get_args(expected)
+        return isinstance(value, list) and (not arguments or all(_matches_type(item, arguments[0]) for item in value))
+    if expected is float:
+        return isinstance(value, (int, float)) and not isinstance(value, bool)
+    if expected is int:
+        return isinstance(value, int) and not isinstance(value, bool)
+    if expected is bool:
+        return isinstance(value, bool)
+    return isinstance(value, expected)
+
+
+def _type_name(expected: Any) -> str:
+    origin = get_origin(expected)
+    if origin is types.UnionType:
+        return " or ".join(_type_name(option) for option in get_args(expected))
+    if origin is list:
+        arguments = get_args(expected)
+        return f"list[{_type_name(arguments[0])}]" if arguments else "list"
+    return getattr(expected, "__name__", str(expected))
 
 
 def config_from_dict(raw: Mapping[str, Any]) -> ExperimentConfig:
@@ -199,6 +235,8 @@ def validate_config(cfg: ExperimentConfig) -> None:
         raise ConfigError("data.num_workers must be non-negative")
     if d.window_mode != "document":
         raise ConfigError("only data.window_mode=document is supported")
+    if d.split_strategy not in {"document_count", "character_balanced"}:
+        raise ConfigError("data.split_strategy must be document_count or character_balanced")
     if t.name not in {"char", "bpe"}:
         raise ConfigError("tokenizer.name must be char or bpe")
     if t.name != d.tokenizer_name:
@@ -223,6 +261,8 @@ def validate_config(cfg: ExperimentConfig) -> None:
         raise ConfigError("model.dropout must be in [0, 1)")
     if m.positional_encoding != "learned":
         raise ConfigError("only learned positional encoding is supported")
+    if m.attention_implementation not in {"readable", "sdpa"}:
+        raise ConfigError("model.attention_implementation must be readable or sdpa")
     for name in ("max_steps", "batch_size", "gradient_accumulation_steps", "eval_interval", "save_interval"):
         if getattr(train, name) < 1:
             raise ConfigError(f"train.{name} must be positive")
@@ -240,6 +280,8 @@ def validate_config(cfg: ExperimentConfig) -> None:
         raise ConfigError("generation.top_k must be positive or null")
     if not 0 < gen.top_p <= 1:
         raise ConfigError("generation.top_p must be in (0, 1]")
+    if not gen.prompts or any(not prompt for prompt in gen.prompts):
+        raise ConfigError("generation.prompts must contain non-empty strings")
     if runtime.device not in {"auto", "cpu", "cuda", "mps"}:
         raise ConfigError("runtime.device must be auto, cpu, cuda, or mps")
     if not runtime.run_name.strip():

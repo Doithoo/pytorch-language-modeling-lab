@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "release_version": "0.2.0",
+  "dataset_identity": "3059ee14b15d07394999ce01c0fec50398207999c13efbeea92dba8da2ca12b0",
+  "runs": [
+    {
+      "name": "readable",
+      "attention_implementation": "readable",
+      "kernel": "yashowhoo/pytorch-language-modeling-lab-gpu@3",
+      "best_step": 2750,
+      "valid_perplexity": 3.7939039662417247,
+      "test_perplexity": 3.827989421680991,
+      "test_accuracy_top1": 0.5866323708588779,
+      "test_accuracy_top5": 0.8709459067437678,
+      "test_bits_per_character": 1.9500885293659602,
+      "tokens_per_second": 41735.67483506736,
+      "training_seconds": 940.211905367,
+      "peak_memory_bytes": 2829815296
+    },
+    {
+      "name": "sdpa",
+      "attention_implementation": "sdpa",
+      "kernel": "yashowhoo/pytorch-language-modeling-lab-gpu-sdpa@1",
+      "best_step": 3250,
+      "valid_perplexity": 3.793968582011617,
+      "test_perplexity": 3.8189137376666538,
+      "test_accuracy_top1": 0.5902295627284507,
+      "test_accuracy_top5": 0.8713907207921558,
+      "test_bits_per_character": 1.9466401434254548,
+      "tokens_per_second": 58921.930303737245,
+      "training_seconds": 666.0469576,
+      "peak_memory_bytes": 1779764736
+    }
+  ],
+  "interpretation": "SDPA is materially faster and uses less memory in this single-seed run. Quality differences are small and should not be treated as statistically significant."
+}

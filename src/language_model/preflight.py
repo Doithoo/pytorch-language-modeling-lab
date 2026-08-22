@@ -5,7 +5,9 @@ from __future__ import annotations
 import json
 import platform
 import shutil
+import subprocess
 import sys
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import Any
 
@@ -52,6 +54,38 @@ def resolve_device(requested: str) -> torch.device:
     return torch.device(requested)
 
 
+def _package_versions() -> dict[str, str]:
+    versions: dict[str, str] = {}
+    for package in ("torch", "numpy", "PyYAML", "tokenizers"):
+        try:
+            versions[package] = version(package)
+        except PackageNotFoundError:
+            versions[package] = "not-installed"
+    return versions
+
+
+def _git_identity() -> dict[str, Any] | None:
+    root = Path(__file__).resolve().parents[2]
+    try:
+        commit = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+        dirty = bool(
+            subprocess.run(
+                ["git", "-C", str(root), "status", "--porcelain"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return None
+    return {"commit": commit, "dirty": dirty}
+
+
 def environment_info(work_dir: str | Path = ".") -> dict[str, Any]:
     path = Path(work_dir).resolve()
     usage = shutil.disk_usage(path if path.exists() else path.parent)
@@ -79,6 +113,13 @@ def environment_info(work_dir: str | Path = ".") -> dict[str, Any]:
         "python": sys.version.split()[0],
         "platform": platform.platform(),
         "pytorch": torch.__version__,
+        "packages": _package_versions(),
+        "git": _git_identity(),
+        "determinism": {
+            "deterministic_algorithms": torch.are_deterministic_algorithms_enabled(),
+            "cudnn_deterministic": torch.backends.cudnn.deterministic,
+            "cudnn_benchmark": torch.backends.cudnn.benchmark,
+        },
         "cuda": cuda,
         "disk_free_bytes": usage.free,
         "work_dir": str(path),

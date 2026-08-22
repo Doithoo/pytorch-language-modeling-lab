@@ -13,7 +13,7 @@ from ..models import build_model
 from ..preflight import resolve_device
 from ..tokenization import tokenizer_from_payload
 from ..training.checkpoint import load_checkpoint, validate_checkpoint_identity
-from .metrics import evaluate_model
+from .metrics import enrich_text_normalized_metrics, evaluate_model
 
 
 def evaluate_checkpoint(
@@ -23,6 +23,7 @@ def evaluate_checkpoint(
     split: str = "test",
     device: str = "auto",
     max_batches: int | None = None,
+    processed_root: str | Path | None = None,
 ) -> dict[str, Any]:
     resolved_device = resolve_device(device)
     payload = load_checkpoint(checkpoint, map_location=resolved_device)
@@ -30,7 +31,7 @@ def evaluate_checkpoint(
     manifest = load_manifest(manifest_path)
     tokenizer = tokenizer_from_payload(payload["tokenizer_payload"])
     validate_checkpoint_identity(payload, manifest["identity"], tokenizer)
-    dataset = TokenWindowDataset(manifest_path, split, verify_hash=True)
+    dataset = TokenWindowDataset(manifest_path, split, processed_root=processed_root, verify_hash=True)
     loader = DataLoader(
         dataset,
         batch_size=cfg.train.batch_size,
@@ -47,6 +48,8 @@ def evaluate_checkpoint(
         max_batches=max_batches,
         amp=cfg.train.amp,
     )
+    if max_batches is None:
+        metrics = enrich_text_normalized_metrics(metrics, manifest["splits"][split])
     return {
         "checkpoint": str(Path(checkpoint)),
         "manifest_identity": manifest["identity"],

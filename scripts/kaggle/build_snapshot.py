@@ -7,12 +7,13 @@ import base64
 import hashlib
 import io
 import json
+import subprocess
 import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = ROOT / "docs" / "recorded-run" / "kaggle" / "run_kaggle.py"
-INCLUDE_ROOTS = ("src", "configs/kaggle_char_small.yaml", "pyproject.toml", "README.md")
+INCLUDE_ROOTS = ("src", "configs", "pyproject.toml", "uv.lock", "README.md")
 
 RUNNER_TEMPLATE = '''"""Generated self-contained Kaggle runner. Rebuild with scripts/kaggle/build_snapshot.py."""
 from __future__ import annotations
@@ -21,7 +22,6 @@ import base64
 import hashlib
 import io
 import json
-import os
 import subprocess
 import sys
 import urllib.request
@@ -32,6 +32,7 @@ SNAPSHOT_SHA256 = "__SNAPSHOT_SHA256__"
 SNAPSHOT_BASE64 = "__SNAPSHOT_BASE64__"
 CORPUS_URL = "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt"
 CORPUS_SHA256 = "86c4e6aa9db7c042ec79f339dcb96d42b0075e16b8fc2e86bf0ca57e2dc565ed"
+CONFIG_NAME = "__CONFIG_NAME__"
 WORKING = Path("/kaggle/working")
 PROJECT = WORKING / "project"
 
@@ -55,7 +56,7 @@ def main() -> None:
     with zipfile.ZipFile(io.BytesIO(archive)) as bundle:
         bundle.extractall(PROJECT)
     event("snapshot", "completed", bytes=len(archive), sha256=actual)
-    run(sys.executable, "-m", "pip", "install", "-e", ".")
+    run(sys.executable, "-m", "pip", "install", "--constraint", "requirements.lock", "--editable", ".")
     run(sys.executable, "-m", "language_model", "preflight", "--work-dir", str(WORKING))
 
     corpus = WORKING / "data" / "raw" / "tiny-shakespeare.txt"
@@ -69,7 +70,7 @@ def main() -> None:
     corpus.write_bytes(content)
     event("download_corpus", "completed", bytes=len(content), sha256=corpus_hash)
 
-    config = PROJECT / "configs" / "kaggle_char_small.yaml"
+    config = PROJECT / "configs" / CONFIG_NAME
     manifest = WORKING / "data" / "manifests" / "tiny_shakespeare" / "manifest.json"
     run(sys.executable, "-m", "language_model", "prepare-data", "--config", str(config), "--overwrite")
     run(sys.executable, "-m", "language_model", "inspect-data", "--manifest", str(manifest))
@@ -102,6 +103,13 @@ def source_files() -> list[Path]:
 
 def build_archive() -> bytes:
     buffer = io.BytesIO()
+    locked_requirements = subprocess.run(
+        ["uv", "export", "--locked", "--no-dev", "--no-emit-project", "--no-hashes"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.encode("utf-8")
     with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
         for path in source_files():
             relative = path.relative_to(ROOT).as_posix()
@@ -109,17 +117,26 @@ def build_archive() -> bytes:
             info.compress_type = zipfile.ZIP_DEFLATED
             info.external_attr = 0o644 << 16
             archive.writestr(info, path.read_bytes())
+        info = zipfile.ZipInfo("requirements.lock", date_time=(2026, 1, 1, 0, 0, 0))
+        info.compress_type = zipfile.ZIP_DEFLATED
+        info.external_attr = 0o644 << 16
+        archive.writestr(info, locked_requirements)
     return buffer.getvalue()
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, default=OUTPUT)
+    parser.add_argument("--config", type=Path, default=ROOT / "configs" / "kaggle_char_small.yaml")
     args = parser.parse_args()
+    if args.config.parent.resolve() != (ROOT / "configs").resolve():
+        raise ValueError("--config must point to a file under configs/")
     archive = build_archive()
     digest = hashlib.sha256(archive).hexdigest()
-    runner = RUNNER_TEMPLATE.replace("__SNAPSHOT_SHA256__", digest).replace(
-        "__SNAPSHOT_BASE64__", base64.b64encode(archive).decode("ascii")
+    runner = (
+        RUNNER_TEMPLATE.replace("__SNAPSHOT_SHA256__", digest)
+        .replace("__SNAPSHOT_BASE64__", base64.b64encode(archive).decode("ascii"))
+        .replace("__CONFIG_NAME__", args.config.name)
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(runner, encoding="utf-8")

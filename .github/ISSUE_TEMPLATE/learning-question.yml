@@ -1,0 +1,16 @@
+name: Learning question
+description: Ask about the modeling or data pipeline
+labels: [question, learning]
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: What are you trying to understand?
+    validations:
+      required: true
+  - type: textarea
+    id: work
+    attributes:
+      label: What did you run and observe?
+    validations:
+      required: true

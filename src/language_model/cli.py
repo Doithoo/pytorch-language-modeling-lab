@@ -12,7 +12,7 @@ from typing import Any
 from . import __version__
 from .config import config_to_dict, load_config, parse_overrides
 from .data import inspect_prepared_data, prepare_data
-from .evaluation import evaluate_checkpoint
+from .evaluation import compare_runs, evaluate_checkpoint
 from .inference import Predictor
 from .models import list_models
 from .preflight import print_preflight
@@ -42,6 +42,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     inspect = subparsers.add_parser("inspect-data", help="verify prepared files and print corpus statistics")
     inspect.add_argument("--manifest", required=True, type=Path)
+    inspect.add_argument("--processed-root", type=Path)
     inspect.add_argument("--no-verify-hashes", action="store_true")
 
     train = subparsers.add_parser("train", help="train or resume a language model")
@@ -57,6 +58,7 @@ def build_parser() -> argparse.ArgumentParser:
     evaluate.add_argument("--split", choices=["train", "valid", "test"], default="test")
     evaluate.add_argument("--device", choices=["auto", "cpu", "cuda", "mps"], default="auto")
     evaluate.add_argument("--max-batches", type=int)
+    evaluate.add_argument("--processed-root", type=Path)
     evaluate.add_argument("--output", type=Path)
 
     generate = subparsers.add_parser("generate", help="generate text from an embedded-tokenizer checkpoint")
@@ -70,6 +72,10 @@ def build_parser() -> argparse.ArgumentParser:
     generate.add_argument("--seed", type=int)
     generate.add_argument("--no-cache", action="store_true")
     generate.add_argument("--output", type=Path)
+
+    compare = subparsers.add_parser("compare-runs", help="compare metrics from completed run directories")
+    compare.add_argument("--run", action="append", required=True, type=Path)
+    compare.add_argument("--output", type=Path)
 
     subparsers.add_parser("list-models", help="show built-in model names and contracts")
     show = subparsers.add_parser("show-config", help="print a fully resolved YAML configuration as JSON")
@@ -106,7 +112,11 @@ def main(argv: list[str] | None = None) -> int:
             manifest = prepare_data(cfg, overwrite=args.overwrite)
             print(json.dumps({"status": "completed", "manifest": str(manifest)}))
         elif args.command == "inspect-data":
-            inspection = inspect_prepared_data(args.manifest, verify_hashes=not args.no_verify_hashes)
+            inspection = inspect_prepared_data(
+                args.manifest,
+                verify_hashes=not args.no_verify_hashes,
+                processed_root=args.processed_root,
+            )
             print(json.dumps(inspection, ensure_ascii=False, indent=2))
         elif args.command == "train":
             cfg = _load_from_args(args)
@@ -127,6 +137,7 @@ def main(argv: list[str] | None = None) -> int:
                 split=args.split,
                 device=args.device,
                 max_batches=args.max_batches,
+                processed_root=args.processed_root,
             )
             if args.output:
                 write_json(args.output, evaluation)
@@ -137,6 +148,11 @@ def main(argv: list[str] | None = None) -> int:
             if args.output:
                 write_json(args.output, generation)
             print(json.dumps(generation, ensure_ascii=False, indent=2))
+        elif args.command == "compare-runs":
+            comparison = compare_runs(args.run)
+            if args.output:
+                write_json(args.output, comparison)
+            print(json.dumps(comparison, ensure_ascii=False, indent=2))
         elif args.command == "list-models":
             print(json.dumps(list_models(), indent=2))
         elif args.command == "show-config":

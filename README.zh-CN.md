@@ -8,22 +8,23 @@
 
 这是一个面向学习者的 PyTorch 自回归语言模型项目。它从可读的 bigram 基线开始，逐步进入字符级/BPE tokenizer、GPT 风格 decoder-only Transformer、可恢复训练、困惑度评估和带 KV cache 的文本生成。
 
-Kaggle 免费 GPU 是正式训练环境；本地不需要 CUDA，只负责数据检查、CPU dry run 和测试。项目已在 Tesla T4 上完成首次真实训练，以下结果来自验证集选出的 `best.pt`。
+这是 `0.2.0` 优化版本。Kaggle kernel version 3 已在 Tesla T4 上完成 5,000 updates，以下结果来自验证集选出的 `best.pt`。最新记录见 [v2 recorded run](docs/recorded-run/v2/README.zh-CN.md)。
 
 ## 已完成的 Kaggle 训练
 
 | 项目 | 结果 |
 | --- | ---: |
 | 模型 | 6 层、10,763,136 参数 decoder-only Transformer |
-| 训练 | 5,000 updates，39,238,634 个有效 target tokens |
-| 最佳验证 perplexity | **3.786090**（step 3000） |
-| 测试 perplexity | **3.815852** |
-| 训练时间 | 835.2 秒，约 13 分 55 秒 |
-| 峰值显存 | 2.59 GiB |
+| 训练 | 5,000 updates，39,229,485 个有效 target tokens |
+| 最佳验证 perplexity | **3.793904** |
+| 测试 perplexity | **3.827989** |
+| 测试 top-1 accuracy | **0.586632** |
+| 测试 top-5 accuracy | **0.870946** |
+| 测试 bits-per-character | **1.950089** |
 
-![Tiny Shakespeare 训练与验证 loss](docs/recorded-run/training-curves.png)
+![Tiny Shakespeare 训练与验证 loss](docs/recorded-run/v2/training-curves.png))
 
-完整配置、20 次验证记录、环境、生成样例和哈希见 [Kaggle 训练记录](docs/recorded-run/README.zh-CN.md)。仓库不提交两个约 123 MiB 的 checkpoint，可从对应 Kaggle 任务下载。
+完整配置、20 次验证记录、环境、生成样例和 hash 见 [v2 Kaggle 训练记录](docs/recorded-run/v2/README.zh-CN.md)。仓库不提交 checkpoint，可从对应 kernel version 3 下载。
 
 ## 在 Kaggle 开始
 
@@ -35,7 +36,7 @@ Kaggle 免费 GPU 是正式训练环境；本地不需要 CUDA，只负责数据
 git clone https://github.com/Doithoo/pytorch-language-modeling-lab.git
 cd pytorch-language-modeling-lab
 uv sync --locked --extra dev
-uv run pytest -W error::DeprecationWarning
+uv run python -m pytest -W error::DeprecationWarning
 uv run python scripts/kaggle/build_snapshot.py
 ```
 
@@ -104,7 +105,7 @@ uv run lm generate \
   --prompt "ROMEO:" --max-new-tokens 200
 ```
 
-checkpoint 内嵌 tokenizer，因此生成不依赖当前目录中的隐式词表。评估仍要求 manifest，以确认 test 数据身份。
+checkpoint 内嵌 tokenizer，因此生成不依赖当前目录中的隐式词表。评估仍要求 manifest，以确认 test 数据身份。若 manifest 与 token 文件不在原始绝对路径，可使用 `--processed-root` 指向 `.bin` 所在目录。
 
 ## 可以学到什么
 
@@ -113,8 +114,9 @@ checkpoint 内嵌 tokenizer，因此生成不依赖当前目录中的隐式词�
 - 字符级 tokenizer 与 BPE 的词表、序列长度和未知字符差异。
 - bigram 的 `[B,T,V]` logits 如何扩展到多层 causal Transformer。
 - causal mask、multi-head attention、pre-LN、残差、GELU 和 embedding 权重绑定。
-- 平均 token cross-entropy 与 perplexity 的关系。
-- AdamW、warmup/cosine、AMP、梯度累积和裁剪如何组合。
+- 平均 token loss、perplexity、top-1/top-5 accuracy、bits-per-character/byte 和可配置 prompt 集。
+- 由 `micro_step` 重建的确定性批顺序，支持中断后与连续训练逐张量一致。
+- 可移动 manifest、双目录回滚发布、严格配置类型校验和运行对比 CLI。
 - `best.pt` 与 `last.pt` 的区别，以及 optimizer/scheduler/RNG 如何恢复。
 - temperature、top-k、top-p、EOS 与 KV cache 如何影响生成。
 - 如何把 Kaggle 的 GPU、源码、语料、配置和 checkpoint 记录为可检查证据。

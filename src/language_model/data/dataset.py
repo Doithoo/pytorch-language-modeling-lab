@@ -32,7 +32,12 @@ class TokenWindowDataset(Dataset[tuple[torch.Tensor, torch.Tensor]]):
         self.stride = int(self.manifest["stride"])
         self.pad_id = int(self.manifest["tokenizer"]["special_token_ids"]["pad"])
         split_metadata = self.manifest["splits"][split]
-        root = Path(processed_root) if processed_root is not None else Path(self.manifest["processed_root"])
+        if processed_root is not None:
+            root = Path(processed_root)
+        else:
+            root = Path(self.manifest["processed_root"])
+            if not root.is_absolute():
+                root = self.manifest_path.parent / root
         self.data_path = root / split_metadata["file"]
         if not self.data_path.is_file():
             raise FileNotFoundError(f"prepared token file not found: {self.data_path}")

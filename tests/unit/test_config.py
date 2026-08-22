@@ -13,6 +13,13 @@ def test_config_rejects_inconsistent_attention_dimensions() -> None:
         config_from_dict({"model": {"d_model": 30, "n_heads": 8}})
 
 
+def test_config_rejects_invalid_runtime_types() -> None:
+    with pytest.raises(ConfigError, match="batch_size"):
+        config_from_dict({"train": {"batch_size": "32"}})
+    with pytest.raises(ConfigError, match="prompts"):
+        config_from_dict({"generation": {"prompts": []}})
+
+
 def test_config_roundtrip_and_overrides() -> None:
     cfg = config_from_dict({"train": {"max_steps": 10, "warmup_steps": 0}, "runtime": {"device": "cpu"}})
     assert config_from_dict(config_to_dict(cfg)) == cfg

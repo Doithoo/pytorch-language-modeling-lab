@@ -10,7 +10,12 @@ from ..utils import sha256_file
 from .manifest import ManifestError, load_manifest
 
 
-def inspect_prepared_data(manifest_path: str | Path, *, verify_hashes: bool = True) -> dict[str, Any]:
+def inspect_prepared_data(
+    manifest_path: str | Path,
+    *,
+    verify_hashes: bool = True,
+    processed_root: str | Path | None = None,
+) -> dict[str, Any]:
     path = Path(manifest_path)
     manifest = load_manifest(path)
     tokenizer = load_tokenizer(path.parent / "tokenizer")
@@ -19,7 +24,12 @@ def inspect_prepared_data(manifest_path: str | Path, *, verify_hashes: bool = Tr
         raise ManifestError("manifest and tokenizer fingerprints differ")
     if tokenizer.vocab_size != manifest["tokenizer"]["vocab_size"]:
         raise ManifestError("manifest and tokenizer vocabulary sizes differ")
-    root = Path(manifest["processed_root"])
+    if processed_root is not None:
+        root = Path(processed_root)
+    else:
+        root = Path(manifest["processed_root"])
+        if not root.is_absolute():
+            root = path.parent / root
     checks: dict[str, Any] = {}
     for split, metadata in manifest["splits"].items():
         data_path = root / metadata["file"]

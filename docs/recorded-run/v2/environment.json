@@ -1,0 +1,40 @@
+{
+  "cuda": {
+    "available": true,
+    "compatible": true,
+    "compute_capability": [
+      7,
+      5
+    ],
+    "current_device": 0,
+    "device_count": 2,
+    "name": "Tesla T4",
+    "supported_architectures": [
+      "sm_75",
+      "sm_80",
+      "sm_86",
+      "sm_90",
+      "sm_100",
+      "sm_120"
+    ],
+    "torch_cuda_version": "13.0",
+    "total_memory_bytes": 15636037632
+  },
+  "determinism": {
+    "cudnn_benchmark": false,
+    "cudnn_deterministic": true,
+    "deterministic_algorithms": true
+  },
+  "disk_free_bytes": 20929658880,
+  "git": null,
+  "packages": {
+    "PyYAML": "6.0.3",
+    "numpy": "2.5.2",
+    "tokenizers": "0.23.1",
+    "torch": "2.13.0"
+  },
+  "platform": "Linux-6.12.90+-x86_64-with-glibc2.35",
+  "python": "3.12.13",
+  "pytorch": "2.13.0+cu130",
+  "work_dir": "/kaggle/working/artifacts/kaggle-char-small"
+}

@@ -11,10 +11,11 @@ from typing import Any, cast
 import numpy as np
 import torch
 
-from ..config import ExperimentConfig, config_to_dict
+from ..config import ExperimentConfig, config_from_dict, config_to_dict
 from ..tokenization import LanguageModelTokenizer
 
-CHECKPOINT_SCHEMA_VERSION = 1
+CHECKPOINT_SCHEMA_VERSION = 2
+SUPPORTED_CHECKPOINT_SCHEMAS = {1, CHECKPOINT_SCHEMA_VERSION}
 
 
 class CheckpointError(ValueError):
@@ -67,6 +68,7 @@ def save_checkpoint(
     manifest_identity: str,
     tokenizer: LanguageModelTokenizer,
     trainer_state: dict[str, Any],
+    data_order: dict[str, Any],
 ) -> None:
     destination = Path(path)
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -81,6 +83,7 @@ def save_checkpoint(
         "scheduler_state": scheduler.state_dict(),
         "scaler_state": scaler.state_dict(),
         "trainer_state": trainer_state,
+        "data_order": data_order,
         "rng_state": capture_rng_state(),
     }
     descriptor, temporary = tempfile.mkstemp(prefix=f".{destination.name}.", dir=destination.parent)
@@ -98,7 +101,7 @@ def load_checkpoint(path: str | Path, *, map_location: str | torch.device = "cpu
     if not checkpoint_path.is_file():
         raise FileNotFoundError(f"checkpoint not found: {checkpoint_path}")
     payload = torch.load(checkpoint_path, map_location=map_location, weights_only=True)
-    if not isinstance(payload, dict) or payload.get("schema_version") != CHECKPOINT_SCHEMA_VERSION:
+    if not isinstance(payload, dict) or payload.get("schema_version") not in SUPPORTED_CHECKPOINT_SCHEMAS:
         raise CheckpointError(f"unsupported checkpoint schema in {checkpoint_path}")
     required = {
         "config",
@@ -112,6 +115,22 @@ def load_checkpoint(path: str | Path, *, map_location: str | torch.device = "cpu
     if missing:
         raise CheckpointError(f"checkpoint is missing fields: {sorted(missing)}")
     return payload
+
+
+def validate_resume_contract(
+    payload: dict[str, Any],
+    cfg: ExperimentConfig,
+    data_order: dict[str, Any],
+) -> None:
+    if payload.get("schema_version") != CHECKPOINT_SCHEMA_VERSION:
+        raise CheckpointError("legacy checkpoints support evaluation and generation, but not exact training resume")
+    checkpoint_cfg = config_from_dict(payload["config"])
+    if checkpoint_cfg.model != cfg.model:
+        raise CheckpointError("resume checkpoint model configuration does not match current configuration")
+    if checkpoint_cfg.train != cfg.train:
+        raise CheckpointError("resume checkpoint training configuration does not match current configuration")
+    if payload.get("data_order") != data_order:
+        raise CheckpointError("resume checkpoint data-order contract does not match the current loader")
 
 
 def validate_checkpoint_identity(

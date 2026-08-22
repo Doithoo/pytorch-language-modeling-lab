@@ -29,7 +29,12 @@ class DecoderBlock(nn.Module):
     def __init__(self, cfg: ModelConfig) -> None:
         super().__init__()
         self.attention_norm = nn.LayerNorm(cfg.d_model)
-        self.attention = CausalSelfAttention(cfg.d_model, cfg.n_heads, cfg.dropout)
+        self.attention = CausalSelfAttention(
+            cfg.d_model,
+            cfg.n_heads,
+            cfg.dropout,
+            cfg.attention_implementation,
+        )
         self.mlp_norm = nn.LayerNorm(cfg.d_model)
         self.mlp = FeedForward(cfg.d_model, cfg.d_ff, cfg.dropout)
 

@@ -1,0 +1,21 @@
+name: Bug report
+description: Report a reproducible issue
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Include the smallest command, configuration, and traceback that reproduces the issue.
+  - type: input
+    id: version
+    attributes:
+      label: Version and commit
+      placeholder: 0.1.0 / abc1234
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Reproduction
+      description: Include environment, command, expected result, and actual result.
+    validations:
+      required: true

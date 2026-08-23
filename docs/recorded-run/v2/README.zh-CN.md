@@ -39,7 +39,9 @@
 在相同 `0.2.0` 配置下，seed 42 的 RoPE + SDPA test perplexity 为 **3.570483**、top-1 为 **0.606417**，learned + SDPA 分别为 3.818914 和 0.590230。新增 seed 7 与 123 后，RoPE 三 seed 平均 test perplexity 为 **3.610572**，learned 为 3.859203，且三个 seed 均同方向改善。详见 [三 seed 复现实验](multiseed/README.zh-CN.md) 和 [RoPE 对照记录](rope/README.zh-CN.md)。
 
 
-- [`environment.json`](environment.json)：Python、PyTorch、CUDA、GPU、依赖和确定性设置。
+`0.2.1` 将 RoPE cos/sin 改为模型级共享、autocast-aware 的非持久 table，移除重复三角函数并保持等价质量与基线级吞吐。详见 [RoPE cache 优化记录](rope-cache/README.zh-CN.md)。
+
+
 - [`manifest.json`](manifest.json)：数据身份和 split 元数据。
 - [`metrics.csv`](metrics.csv)：20 次验证记录，包含 top-1/top-5 accuracy。
 - [`evaluation/summary.json`](evaluation/summary.json)：`best.pt` 的 valid/test 指标。

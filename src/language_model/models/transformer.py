@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from ..config import ModelConfig
-from .attention import CausalSelfAttention
+from .attention import CausalSelfAttention, RotaryCosSin
 from .spec import ModelOutput, PastKeyValue, PastKeyValues
 
 
@@ -23,6 +23,27 @@ class FeedForward(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.network(x)
+
+
+class RotaryEmbedding(nn.Module):
+    def __init__(self, head_dim: int, context_length: int) -> None:
+        super().__init__()
+        if head_dim % 2:
+            raise ValueError("rotary positional encoding requires an even attention head dimension")
+        half = head_dim // 2
+        frequencies = torch.arange(half, dtype=torch.float32)
+        inverse = 1.0 / (10000.0 ** (frequencies / half))
+        angles = torch.arange(context_length, dtype=torch.float32).unsqueeze(-1) * inverse.unsqueeze(0)
+        self.cos: torch.Tensor
+        self.sin: torch.Tensor
+        self.register_buffer("cos", angles.cos(), persistent=False)
+        self.register_buffer("sin", angles.sin(), persistent=False)
+
+    def forward(self, positions: torch.Tensor, dtype: torch.dtype) -> RotaryCosSin:
+        half = self.cos.shape[-1]
+        cos = self.cos.index_select(0, positions).to(dtype=dtype).view(1, 1, -1, half)
+        sin = self.sin.index_select(0, positions).to(dtype=dtype).view(1, 1, -1, half)
+        return cos, sin
 
 
 class DecoderBlock(nn.Module):
@@ -45,11 +66,13 @@ class DecoderBlock(nn.Module):
         *,
         past_key_value: PastKeyValue | None = None,
         use_cache: bool = False,
+        rotary_cos_sin: RotaryCosSin | None = None,
     ) -> tuple[torch.Tensor, PastKeyValue | None]:
         attended, present = self.attention(
             self.attention_norm(x),
             past_key_value=past_key_value,
             use_cache=use_cache,
+            rotary_cos_sin=rotary_cos_sin,
         )
         x = x + attended
         x = x + self.mlp(self.mlp_norm(x))
@@ -68,6 +91,11 @@ class TransformerLanguageModel(nn.Module):
         self.token_embedding = nn.Embedding(cfg.vocab_size, cfg.d_model)
         self.position_embedding = (
             nn.Embedding(cfg.context_length, cfg.d_model) if cfg.positional_encoding == "learned" else None
+        )
+        self.rotary_embedding = (
+            RotaryEmbedding(cfg.d_model // cfg.n_heads, cfg.context_length)
+            if cfg.positional_encoding == "rotary"
+            else None
         )
         self.dropout = nn.Dropout(cfg.dropout)
         self.blocks = nn.ModuleList([DecoderBlock(cfg) for _ in range(cfg.n_layers)])
@@ -107,12 +135,21 @@ class TransformerLanguageModel(nn.Module):
         x = self.token_embedding(input_ids)
         if self.position_embedding is not None:
             x = x + self.position_embedding(positions).unsqueeze(0)
+        rotary_dtype = x.dtype
+        if torch.is_autocast_enabled(x.device.type):
+            rotary_dtype = torch.get_autocast_dtype(x.device.type)
+        rotary_cos_sin = self.rotary_embedding(positions, rotary_dtype) if self.rotary_embedding is not None else None
         x = self.dropout(x)
 
         presents: list[PastKeyValue] = []
         for index, block in enumerate(self.blocks):
             past = past_key_values[index] if past_key_values is not None else None
-            x, present = block(x, past_key_value=past, use_cache=use_cache)
+            x, present = block(
+                x,
+                past_key_value=past,
+                use_cache=use_cache,
+                rotary_cos_sin=rotary_cos_sin,
+            )
             if present is not None:
                 presents.append(present)
         logits = self.lm_head(self.final_norm(x))

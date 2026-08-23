@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pytorch-language-modeling-lab"
-version = "0.2.0"
+version = "0.2.1"
 description = "An educational, reproducible PyTorch causal language modeling lab"
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
@@ -68,6 +68,7 @@ language_model = ["py.typed"]
     "configs/kaggle_char_small_rope_seed7.yaml",
     "configs/kaggle_char_small_sdpa_seed123.yaml",
     "configs/kaggle_char_small_rope_seed123.yaml",
+    "configs/kaggle_char_small_rope_cached.yaml",
 ]
 
 [tool.ruff]

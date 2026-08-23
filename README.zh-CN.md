@@ -8,7 +8,7 @@
 
 这是一个面向学习者的 PyTorch 自回归语言模型项目。它从可读的 bigram 基线开始，逐步进入字符级/BPE tokenizer、GPT 风格 decoder-only Transformer、可恢复训练、困惑度评估和带 KV cache 的文本生成。
 
-这是 `0.2.0` 优化版本。Kaggle 已完成 readable、SDPA、RoPE 以及 seed 7/42/123 的配对复现实验。RoPE + SDPA 三 seed 平均 test perplexity 为 **3.610572**，learned + SDPA 为 3.859203。最新记录见 [v2 recorded run](docs/recorded-run/v2/README.zh-CN.md)。
+这是 `0.2.1` 优化版本。Kaggle 已完成 readable、SDPA、RoPE、seed 7/42/123 配对复现和 RoPE cache 性能验证。RoPE + SDPA 三 seed 平均 test perplexity 为 **3.610572**，learned + SDPA 为 3.859203；共享 autocast-aware cache 保持等价质量与基线级吞吐。最新记录见 [v2 recorded run](docs/recorded-run/v2/README.zh-CN.md)。
 
 ## 已完成的 Kaggle 训练
 

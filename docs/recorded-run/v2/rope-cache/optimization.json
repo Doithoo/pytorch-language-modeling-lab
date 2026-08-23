@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "baseline": {
+    "name": "dynamic-rope",
+    "kernel": "yashowhoo/pytorch-language-modeling-lab-gpu-rope@1",
+    "test_perplexity": 3.5704831492648186,
+    "tokens_per_second": 50160.614182248486,
+    "training_seconds": 782.366818388,
+    "peak_memory_bytes": 1928037888
+  },
+  "iterations": [
+    {
+      "kernel_version": 1,
+      "implementation": "per-layer cached float16 table",
+      "source_snapshot_sha256": "60c2ae11c2291870bcdf77d92e68610697df8ccf9b89410b78b52a2dcd23e584",
+      "test_perplexity": 3.570488385044582,
+      "tokens_per_second": 48994.50161730308,
+      "training_seconds": 801.00192959,
+      "peak_memory_bytes": 1928431104,
+      "result": "rejected: repeated per-layer indexing and casting was slower"
+    },
+    {
+      "kernel_version": 2,
+      "implementation": "model-shared cached float32 table",
+      "source_snapshot_sha256": "5c39d12d5ae470a5fb1842308c8d4189eaff7604d643e4adac5cb5031fc75683",
+      "test_perplexity": 3.5705006360252867,
+      "tokens_per_second": 45737.675630513564,
+      "training_seconds": 857.95630688,
+      "peak_memory_bytes": 1926858240,
+      "result": "rejected: float32 table promoted AMP Q/K operations"
+    },
+    {
+      "kernel_version": 3,
+      "implementation": "model-shared autocast-aware cached table",
+      "source_snapshot_sha256": "def81f3d514d3f3e028950a86eccd4a7ad9b3b9f32be0420b91fc1561b0d62ea",
+      "test_perplexity": 3.570488385044582,
+      "tokens_per_second": 50457.68676657758,
+      "training_seconds": 777.7386686519999,
+      "peak_memory_bytes": 1927742976,
+      "result": "accepted: removes repeated trig with equivalent quality and baseline-level throughput"
+    }
+  ],
+  "accepted_relative_throughput_change_percent": 0.592241923399926,
+  "interpretation": "The accepted cache removes repeated trigonometric work without a meaningful quality or memory change. The measured throughput gain is small and may be within run-to-run noise."
+}

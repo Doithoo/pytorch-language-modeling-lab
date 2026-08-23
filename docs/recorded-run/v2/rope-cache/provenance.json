@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "release_version": "0.2.1",
+  "kaggle_url": "https://www.kaggle.com/code/yashowhoo/pytorch-language-modeling-lab-gpu-rope-cached",
+  "kernel_version": 3,
+  "source_snapshot": {
+    "bytes": 146288,
+    "sha256": "def81f3d514d3f3e028950a86eccd4a7ad9b3b9f32be0420b91fc1561b0d62ea"
+  },
+  "manifest_identity": "3059ee14b15d07394999ce01c0fec50398207999c13efbeea92dba8da2ca12b0",
+  "checkpoints": {
+    "best": {
+      "step": 2500,
+      "bytes": 128072965,
+      "sha256": "c8e983fc6cc977039f2aa1167b5ae163d44eb05301bce6108a827bec61e7603d"
+    },
+    "last": {
+      "step": 5000,
+      "bytes": 128072965,
+      "sha256": "bfdb5451471617fdd294d7d3c0b3521ba539fdbeba5efa6965b801119e2ff00f"
+    }
+  }
+}

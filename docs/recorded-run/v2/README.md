@@ -39,11 +39,13 @@ The same `0.2.0` configuration was run with PyTorch SDPA as a controlled attenti
 The same `0.2.0` configuration was also run with RoPE positional encoding. RoPE reached test perplexity 3.570483 and top-1 accuracy 0.606417 in the seed-42 run, compared with 3.818914 and 0.590230 for learned positions with SDPA. Two additional paired seeds confirmed the direction: mean test perplexity was 3.610572 for RoPE vs 3.859203 for learned positions. See the [three-seed replication](multiseed/README.zh-CN.md) and [RoPE comparison record](rope/README.zh-CN.md).
 
 
-- [`environment.json`](environment.json): Python, PyTorch, CUDA, GPU, package, and deterministic settings.
+The `0.2.1` shared autocast-aware RoPE table removed repeated trigonometric work while retaining equivalent quality and baseline-level throughput. See the [cache optimization record](rope-cache/README.zh-CN.md).
+
+
 - [`manifest.json`](manifest.json): prepared data identity and split metadata.
 - [`metrics.csv`](metrics.csv): 20 validation records including top-1/top-5 accuracy.
 - [`evaluation/summary.json`](evaluation/summary.json): final valid/test metrics from `best.pt`.
 - [`evaluation/prompts.jsonl`](evaluation/prompts.jsonl): fixed prompt output and generation parameters.
-- [`comparison.json`](comparison.json): machine-readable readable/SDPA comparison under the same data identity.
+- [`comparison.json`](comparison.json): machine-readable readable/SDPA/RoPE comparison under the same data identity.
 
 Checkpoint binaries are not committed. Download `artifacts/kaggle-char-small/checkpoints/best.pt` or `last.pt` from kernel version 3 and verify against [`provenance.json`](provenance.json).

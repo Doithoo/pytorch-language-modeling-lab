@@ -9,7 +9,8 @@
 | `bpe_tiny.yaml` | 512 词表 BPE 对照实验，使用独立 manifest |
 | `kaggle_char_small.yaml` | `/kaggle/working` 路径、AMP、单 GPU、readable attention 正式训练 |
 | `kaggle_char_small_sdpa.yaml` | 与 readable 相同预算的 PyTorch SDPA attention 对照 |
-| `kaggle_char_small_rope.yaml` | SDPA + RoPE positional encoding 结构对照 |
+| `kaggle_char_small_rope.yaml` | SDPA + 动态 RoPE positional encoding 结构对照 |
+| `kaggle_char_small_rope_cached.yaml` | `0.2.1` 预计算 RoPE cos/sin 性能对照 |
 | `kaggle_char_small_{sdpa,rope}_seed{7,123}.yaml` | learned/RoPE 三 seed 配对复现实验 |
 
 先准备与配置完全对应的数据：

@@ -10,6 +10,8 @@ import torch.nn.functional as F
 
 from .spec import PastKeyValue
 
+RotaryCosSin = tuple[torch.Tensor, torch.Tensor]
+
 
 class CausalSelfAttention(nn.Module):
     def __init__(
@@ -36,15 +38,12 @@ class CausalSelfAttention(nn.Module):
         self.attention_dropout = nn.Dropout(dropout)
         self.residual_dropout = nn.Dropout(dropout)
 
-    def _apply_rotary(self, tensor: torch.Tensor, positions: torch.Tensor) -> torch.Tensor:
+    def _apply_rotary(self, tensor: torch.Tensor, rotary_cos_sin: RotaryCosSin | None) -> torch.Tensor:
         if not self.rotary:
             return tensor
-        half = self.head_dim // 2
-        frequencies = torch.arange(half, device=tensor.device, dtype=torch.float32)
-        inverse = 1.0 / (10000.0 ** (frequencies / half))
-        angles = positions.to(torch.float32).unsqueeze(-1) * inverse.unsqueeze(0)
-        cos = angles.cos().to(dtype=tensor.dtype).view(1, 1, -1, half)
-        sin = angles.sin().to(dtype=tensor.dtype).view(1, 1, -1, half)
+        if rotary_cos_sin is None:
+            raise ValueError("rotary attention requires precomputed cos/sin values")
+        cos, sin = rotary_cos_sin
         even = tensor[..., ::2]
         odd = tensor[..., 1::2]
         rotated = torch.stack((even * cos - odd * sin, even * sin + odd * cos), dim=-1)
@@ -56,6 +55,7 @@ class CausalSelfAttention(nn.Module):
         *,
         past_key_value: PastKeyValue | None = None,
         use_cache: bool = False,
+        rotary_cos_sin: RotaryCosSin | None = None,
     ) -> tuple[torch.Tensor, PastKeyValue | None]:
         batch, time, channels = x.shape
         qkv = self.qkv(x)
@@ -70,9 +70,8 @@ class CausalSelfAttention(nn.Module):
             if past_key.shape[:2] != (batch, self.n_heads) or past_key.shape != past_value.shape:
                 raise ValueError("invalid past_key_value shape")
             past_length = past_key.shape[2]
-        current_positions = torch.arange(past_length, past_length + time, device=x.device)
-        query = self._apply_rotary(query, current_positions)
-        key = self._apply_rotary(key, current_positions)
+        query = self._apply_rotary(query, rotary_cos_sin)
+        key = self._apply_rotary(key, rotary_cos_sin)
 
         if past_key_value is not None:
             key = torch.cat((past_key, key), dim=2)

@@ -22,7 +22,7 @@ Kaggle's free GPU environment is the primary environment for complete training a
 
 ## Recorded Kaggle Run
 
-version 0.2.0 of the project has completed a Tesla T4 recorded run using checkpoint schema v2, deterministic resume ordering, and token-aware evaluation. A three-seed comparison found mean test perplexity **3.610572** for RoPE + SDPA versus **3.859203** for learned positions + SDPA. See the [latest recorded run](docs/recorded-run/v2/README.md) for metrics, environment, hashes, and fixed-prompt output.
+version 0.2.1 of the project includes checkpoint-compatible shared RoPE cos/sin buffers. The three-seed `0.2.0` study found mean test perplexity **3.610572** for RoPE + SDPA versus **3.859203** for learned positions + SDPA; the `0.2.1` cache retained equivalent quality and baseline-level throughput. See the [latest recorded run](docs/recorded-run/v2/README.md).
 
 ## Kaggle Quick Start
 

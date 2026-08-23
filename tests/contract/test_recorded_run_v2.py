@@ -76,3 +76,31 @@ def test_multiseed_rope_replication_is_paired_and_consistent() -> None:
     stats = summary["paired_test_perplexity"]
     assert stats["rope_sdpa_mean"] < stats["learned_sdpa_mean"]
     assert stats["rope_minus_learned_mean"] < 0
+
+
+def test_rope_cache_optimization_preserves_quality_and_provenance() -> None:
+    directory = RECORDED / "rope-cache"
+    provenance = json.loads((directory / "provenance.json").read_text(encoding="utf-8"))
+    optimization = json.loads((directory / "optimization.json").read_text(encoding="utf-8"))
+    run = json.loads((directory / "run.json").read_text(encoding="utf-8"))
+    assert provenance["release_version"] == "0.2.1"
+    assert provenance["kernel_version"] == 3
+    assert run["status"] == "completed"
+    assert run["best_checkpoint"]["sha256"] == provenance["checkpoints"]["best"]["sha256"]
+    baseline = optimization["baseline"]
+    accepted = optimization["iterations"][-1]
+    assert accepted["kernel_version"] == 3
+    assert accepted["tokens_per_second"] >= baseline["tokens_per_second"]
+    assert abs(accepted["test_perplexity"] - baseline["test_perplexity"]) < 1e-4
+
+    runner = ast.parse((ROOT / "docs/recorded-run/kaggle-rope-cached/run_kaggle.py").read_text(encoding="utf-8"))
+    values = {
+        node.targets[0].id: ast.literal_eval(node.value)
+        for node in runner.body
+        if isinstance(node, ast.Assign)
+        and isinstance(node.targets[0], ast.Name)
+        and node.targets[0].id in {"SNAPSHOT_SHA256", "SNAPSHOT_BASE64"}
+    }
+    archive = base64.b64decode(values["SNAPSHOT_BASE64"])
+    assert values["SNAPSHOT_SHA256"] == provenance["source_snapshot"]["sha256"]
+    assert len(archive) == provenance["source_snapshot"]["bytes"]

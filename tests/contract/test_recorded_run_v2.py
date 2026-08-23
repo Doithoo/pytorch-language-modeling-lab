@@ -57,3 +57,22 @@ def test_v2_rope_recorded_run_provenance() -> None:
     assert evaluation["checkpoint_sha256"] == provenance["checkpoints"]["best"]["sha256"]
     assert evaluation["test"]["perplexity"] < 3.6
     assert evaluation["test"]["accuracy_top1"] > 0.60
+
+
+def test_multiseed_rope_replication_is_paired_and_consistent() -> None:
+    summary = json.loads((RECORDED / "multiseed" / "summary.json").read_text(encoding="utf-8"))
+    assert summary["seeds"] == [42, 7, 123]
+    assert len(summary["runs"]) == 3
+    for pair in summary["runs"]:
+        assert pair["rope_sdpa"]["test_perplexity"] < pair["learned_sdpa"]["test_perplexity"]
+        assert pair["rope_sdpa"]["test_accuracy_top1"] > pair["learned_sdpa"]["test_accuracy_top1"]
+        if pair["seed"] in {7, 123}:
+            seed_dir = RECORDED / "multiseed" / f"seed{pair['seed']}"
+            learned = json.loads((seed_dir / "sdpa" / "run.json").read_text(encoding="utf-8"))
+            rope = json.loads((seed_dir / "rope" / "run.json").read_text(encoding="utf-8"))
+            assert learned["manifest_identity"] == rope["manifest_identity"] == pair["manifest_identity"]
+            assert learned["test"]["perplexity"] == pair["learned_sdpa"]["test_perplexity"]
+            assert rope["test"]["perplexity"] == pair["rope_sdpa"]["test_perplexity"]
+    stats = summary["paired_test_perplexity"]
+    assert stats["rope_sdpa_mean"] < stats["learned_sdpa_mean"]
+    assert stats["rope_minus_learned_mean"] < 0

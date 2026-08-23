@@ -36,7 +36,7 @@
 在相同 `0.2.0` 配置下，使用 PyTorch SDPA 完成 attention 实现对照。SDPA 用时 666.0 秒，吞吐 58,921.9 token/s，峰值 CUDA 显存约 1.66 GiB；readable 版本用时 940.2 秒，吞吐 41,735.7 token/s，峰值显存约 2.64 GiB。测试 perplexity 分别为 3.818914 和 3.827989，测试 top-1 分别为 0.590230 和 0.586632。详见 [SDPA 对照记录](sdpa/README.zh-CN.md)。
 
 
-在相同 `0.2.0` 配置下，使用 RoPE positional encoding 的 SDPA 运行 test perplexity 为 **3.570483**、top-1 为 **0.606417**，learned + SDPA 对照分别为 3.818914 和 0.590230。RoPE 吞吐较低，为 50,160.6 token/s。详见 [RoPE 对照记录](rope/README.zh-CN.md)。
+在相同 `0.2.0` 配置下，seed 42 的 RoPE + SDPA test perplexity 为 **3.570483**、top-1 为 **0.606417**，learned + SDPA 分别为 3.818914 和 0.590230。新增 seed 7 与 123 后，RoPE 三 seed 平均 test perplexity 为 **3.610572**，learned 为 3.859203，且三个 seed 均同方向改善。详见 [三 seed 复现实验](multiseed/README.zh-CN.md) 和 [RoPE 对照记录](rope/README.zh-CN.md)。
 
 
 - [`environment.json`](environment.json)：Python、PyTorch、CUDA、GPU、依赖和确定性设置。

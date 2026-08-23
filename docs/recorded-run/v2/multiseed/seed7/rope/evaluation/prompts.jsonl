@@ -1,0 +1,1 @@
+{"prompt": "The ", "text": "The Citizens:\nWhere is the ready?", "token_ids": [1, 36, 50, 47, 5, 19, 51, 62, 51, 68, 47, 56, 61, 14, 4, 39, 50, 47, 60, 47, 5, 51, 61, 5, 62, 50, 47, 5, 60, 47, 43, 46, 67, 16, 2], "generation": {"max_new_tokens": 400, "temperature": 0.8, "top_k": 40, "top_p": 0.95, "seed": 7, "use_cache": true, "new_tokens": 30, "cache_used": true}}

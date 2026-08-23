@@ -26,7 +26,16 @@ kaggle kernels output yashowhoo/pytorch-language-modeling-lab-gpu-sdpa \
 shasum -a 256 kaggle-output-sdpa/artifacts/kaggle-char-small-sdpa/checkpoints/best.pt
 ```
 
-Expected hashes are listed in [`docs/recorded-run/v2/provenance.json`](../recorded-run/v2/provenance.json) and [`docs/recorded-run/v2/sdpa/provenance.json`](../recorded-run/v2/sdpa/provenance.json).
+The RoPE checkpoint is the strongest three-seed model family in the current recorded study:
+
+```bash
+kaggle kernels output yashowhoo/pytorch-language-modeling-lab-gpu-rope \
+  --file-pattern 'artifacts/kaggle-char-small-rope/checkpoints/best.pt' \
+  -p kaggle-output-rope
+shasum -a 256 kaggle-output-rope/artifacts/kaggle-char-small-rope/checkpoints/best.pt
+```
+
+Expected hashes are listed in the corresponding provenance files under [`docs/recorded-run/v2/`](../recorded-run/v2/README.md).
 
 ## Generate
 

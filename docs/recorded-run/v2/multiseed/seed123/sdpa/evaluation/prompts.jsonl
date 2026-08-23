@@ -1,0 +1,1 @@
+{"prompt": "The ", "text": "The Citizen:\nWhere is my lord?", "token_ids": [1, 36, 50, 47, 5, 19, 51, 62, 51, 68, 47, 56, 14, 4, 39, 50, 47, 60, 47, 5, 51, 61, 5, 55, 67, 5, 54, 57, 60, 46, 16, 2], "generation": {"max_new_tokens": 400, "temperature": 0.8, "top_k": 40, "top_p": 0.95, "seed": 123, "use_cache": true, "new_tokens": 27, "cache_used": true}}

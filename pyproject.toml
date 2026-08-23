@@ -64,6 +64,10 @@ language_model = ["py.typed"]
     "configs/kaggle_char_small.yaml",
     "configs/kaggle_char_small_sdpa.yaml",
     "configs/kaggle_char_small_rope.yaml",
+    "configs/kaggle_char_small_sdpa_seed7.yaml",
+    "configs/kaggle_char_small_rope_seed7.yaml",
+    "configs/kaggle_char_small_sdpa_seed123.yaml",
+    "configs/kaggle_char_small_rope_seed123.yaml",
 ]
 
 [tool.ruff]

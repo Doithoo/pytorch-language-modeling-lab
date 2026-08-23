@@ -11,6 +11,8 @@ import subprocess
 import zipfile
 from pathlib import Path
 
+import yaml
+
 ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = ROOT / "docs" / "recorded-run" / "kaggle" / "run_kaggle.py"
 INCLUDE_ROOTS = ("src", "configs", "pyproject.toml", "uv.lock", "README.md")
@@ -33,6 +35,7 @@ SNAPSHOT_BASE64 = "__SNAPSHOT_BASE64__"
 CORPUS_URL = "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt"
 CORPUS_SHA256 = "86c4e6aa9db7c042ec79f339dcb96d42b0075e16b8fc2e86bf0ca57e2dc565ed"
 CONFIG_NAME = "__CONFIG_NAME__"
+DATASET_NAME = "__DATASET_NAME__"
 WORKING = Path("/kaggle/working")
 PROJECT = WORKING / "project"
 
@@ -71,7 +74,7 @@ def main() -> None:
     event("download_corpus", "completed", bytes=len(content), sha256=corpus_hash)
 
     config = PROJECT / "configs" / CONFIG_NAME
-    manifest = WORKING / "data" / "manifests" / "tiny_shakespeare" / "manifest.json"
+    manifest = WORKING / "data" / "manifests" / DATASET_NAME / "manifest.json"
     run(sys.executable, "-m", "language_model", "prepare-data", "--config", str(config), "--overwrite")
     run(sys.executable, "-m", "language_model", "inspect-data", "--manifest", str(manifest))
     run(sys.executable, "-m", "language_model", "train", "--config", str(config), "--manifest", str(manifest))
@@ -131,12 +134,17 @@ def main() -> int:
     args = parser.parse_args()
     if args.config.parent.resolve() != (ROOT / "configs").resolve():
         raise ValueError("--config must point to a file under configs/")
+    config_payload = yaml.safe_load(args.config.read_text(encoding="utf-8"))
+    dataset_name = config_payload.get("data", {}).get("dataset_name") if isinstance(config_payload, dict) else None
+    if not isinstance(dataset_name, str) or not dataset_name:
+        raise ValueError("selected config must define data.dataset_name")
     archive = build_archive()
     digest = hashlib.sha256(archive).hexdigest()
     runner = (
         RUNNER_TEMPLATE.replace("__SNAPSHOT_SHA256__", digest)
         .replace("__SNAPSHOT_BASE64__", base64.b64encode(archive).decode("ascii"))
         .replace("__CONFIG_NAME__", args.config.name)
+        .replace("__DATASET_NAME__", dataset_name)
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(runner, encoding="utf-8")

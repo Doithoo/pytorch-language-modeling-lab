@@ -55,3 +55,23 @@ def test_snapshot_builder_creates_compilable_runner(tmp_path: Path) -> None:
     with zipfile.ZipFile(io.BytesIO(base64.b64decode(payload))) as archive:
         assert not any(".egg-info/" in name or "__pycache__/" in name for name in archive.namelist())
     compile(source, str(output), "exec")
+
+
+def test_snapshot_builder_embeds_selected_dataset_name(tmp_path: Path) -> None:
+    output = tmp_path / "run_seed7.py"
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "kaggle" / "build_snapshot.py"),
+            "--config",
+            str(ROOT / "configs" / "kaggle_char_small_sdpa_seed7.yaml"),
+            "--output",
+            str(output),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    source = output.read_text(encoding="utf-8")
+    assert 'CONFIG_NAME = "kaggle_char_small_sdpa_seed7.yaml"' in source
+    assert 'DATASET_NAME = "tiny_shakespeare_seed7"' in source

@@ -21,7 +21,16 @@ kaggle kernels output yashowhoo/pytorch-language-modeling-lab-gpu-sdpa \
 shasum -a 256 kaggle-output-sdpa/artifacts/kaggle-char-small-sdpa/checkpoints/best.pt
 ```
 
-期望 hash 见 [`docs/recorded-run/v2/provenance.json`](../recorded-run/v2/provenance.json) 和 [`docs/recorded-run/v2/sdpa/provenance.json`](../recorded-run/v2/sdpa/provenance.json)。
+当前三 seed 研究中表现最稳定的是 RoPE checkpoint：
+
+```bash
+kaggle kernels output yashowhoo/pytorch-language-modeling-lab-gpu-rope \
+  --file-pattern 'artifacts/kaggle-char-small-rope/checkpoints/best.pt' \
+  -p kaggle-output-rope
+shasum -a 256 kaggle-output-rope/artifacts/kaggle-char-small-rope/checkpoints/best.pt
+```
+
+期望 hash 见 [`docs/recorded-run/v2/`](../recorded-run/v2/README.zh-CN.md) 下对应实验的 provenance 文件。
 
 ## 生成
 

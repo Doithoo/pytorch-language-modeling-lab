@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "release_version": "0.2.0",
+  "seeds": [42, 7, 123],
+  "paired_test_perplexity": {
+    "learned_sdpa_mean": 3.8592028669094627,
+    "learned_sdpa_sample_stddev": 0.07271909164182498,
+    "rope_sdpa_mean": 3.6105715355397088,
+    "rope_sdpa_sample_stddev": 0.06055417513800649,
+    "rope_minus_learned_mean": -0.24863133136975377,
+    "rope_minus_learned_sample_stddev": 0.014189259477862764
+  },
+  "runs": [
+    {
+      "seed": 42,
+      "manifest_identity": "3059ee14b15d07394999ce01c0fec50398207999c13efbeea92dba8da2ca12b0",
+      "learned_sdpa": {"kernel": "yashowhoo/pytorch-language-modeling-lab-gpu-sdpa@1", "test_perplexity": 3.8189137376666538, "test_accuracy_top1": 0.5902295627284507},
+      "rope_sdpa": {"kernel": "yashowhoo/pytorch-language-modeling-lab-gpu-rope@1", "test_perplexity": 3.5704831492648186, "test_accuracy_top1": 0.6064169261415282},
+      "relative_perplexity_change_percent": -6.505268394819142
+    },
+    {
+      "seed": 7,
+      "manifest_identity": "244ca0c00b1c46ed62021ff99517b33325741c14a6f9809ddf547b2880acbcc4",
+      "source_snapshot": {"bytes": 144989, "sha256": "0d00cea3ed4c7f26f4f45b7996b4a3d889a7c1d0b0ba2802b44d551fd502a8e6"},
+      "learned_sdpa": {"kernel": "yashowhoo/pytorch-language-modeling-lab-gpu-sdpa-seed-7@2", "test_perplexity": 3.9431491230276787, "test_accuracy_top1": 0.5805539853024307, "best_checkpoint_sha256": "3a699a2cc28aa27330e265427c0b107ad920941b34d88083fefb6cb234047e9a"},
+      "rope_sdpa": {"kernel": "yashowhoo/pytorch-language-modeling-lab-gpu-rope-seed-7@2", "test_perplexity": 3.6802292257424765, "test_accuracy_top1": 0.596624404425422, "best_checkpoint_sha256": "2554a71ef75e40c36f0c74a028203512e492ae209c73469c9a1a67ad6d37e828"},
+      "relative_perplexity_change_percent": -6.667764496903528
+    },
+    {
+      "seed": 123,
+      "manifest_identity": "960b9a1b7fe32d963bcb1091fe8f365f049fe20688cf75e01867cec2ae9d1627",
+      "source_snapshot": {"bytes": 144989, "sha256": "0d00cea3ed4c7f26f4f45b7996b4a3d889a7c1d0b0ba2802b44d551fd502a8e6"},
+      "learned_sdpa": {"kernel": "yashowhoo/pytorch-language-modeling-lab-gpu-sdpa-seed-123@2", "test_perplexity": 3.8155457400340556, "test_accuracy_top1": 0.5891273369206883, "best_checkpoint_sha256": "8940ae0a30294ebb4ec3c9c4cc227cfab2b350b39c23e41d26c98ff473b1b4d3"},
+      "rope_sdpa": {"kernel": "yashowhoo/pytorch-language-modeling-lab-gpu-rope-seed-123@2", "test_perplexity": 3.5810022316118317, "test_accuracy_top1": 0.6086734585362741, "best_checkpoint_sha256": "cba355c1875a17245c9fedcbda5a38c25f3225a2c5ee5f5f610ea22512a6ee7a"},
+      "relative_perplexity_change_percent": -6.14705010508223
+    }
+  ],
+  "interpretation": "RoPE reduced paired test perplexity for all three seeds. This is stronger evidence than a single run, but remains a small-corpus study rather than a universal architecture claim."
+}

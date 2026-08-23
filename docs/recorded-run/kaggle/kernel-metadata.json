@@ -1,6 +1,6 @@
 {
   "id": "yashowhoo/pytorch-language-modeling-lab-gpu",
-  "title": "PyTorch Language Modeling Lab GPU",
+  "title": "PyTorch Language Modeling Project GPU",
   "code_file": "run_kaggle.py",
   "language": "python",
   "kernel_type": "script",

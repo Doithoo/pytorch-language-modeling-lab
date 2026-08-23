@@ -1,4 +1,4 @@
-site_name: PyTorch Language Modeling Lab
+site_name: PyTorch Language Modeling Project
 site_description: A small, reproducible PyTorch causal language modeling project
 repo_url: https://github.com/Doithoo/pytorch-language-modeling-lab
 repo_name: Doithoo/pytorch-language-modeling-lab
@@ -86,7 +86,6 @@ nav:
       - Reproducible contracts: architecture/0001-reproducible-causal-language-model-contracts.md
   - 中文架构:
       - 可复现实验契约: architecture/0001-reproducible-causal-language-model-contracts.zh-CN.md
-      - 当前架构与路线: IMPLEMENTATION_PLAN.zh-CN.md
   - Recorded runs:
       - Index: recorded-run/README.md
       - Machine-readable catalog: recorded-run/index.json

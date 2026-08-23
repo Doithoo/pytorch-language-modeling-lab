@@ -1,6 +1,6 @@
 # Contributing
 
-This is an educational, reproducible causal language-modeling lab. Keep contributions focused on the data, tokenizer, model, training, evaluation, inference, and documented experiment workflow.
+This is a small, reproducible causal language-modeling project. Keep contributions focused on data, tokenizers, models, training, evaluation, inference, and run documentation.
 
 Before opening a pull request:
 

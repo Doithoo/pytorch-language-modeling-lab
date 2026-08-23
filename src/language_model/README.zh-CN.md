@@ -1,9 +1,13 @@
-This package is intentionally scaffolded by domain boundary. Implement modules in this order:
+# Package Architecture
 
-1. config.py, preflight.py, data/ and tokenization/
-2. models/bigram.py and models/transformer.py
-3. training/losses.py, training/checkpoint.py and training/trainer.py
-4. evaluation/metrics.py and generation/sampler.py
-5. inference/predictor.py and cli.py
+The package is intentionally organized by domain boundary:
 
-Do not move dataset parsing, model construction, or checkpoint loading into the CLI. The CLI should compose these modules and remain thin.
+1. `config.py`, `preflight.py`, `data/`, and `tokenization/`
+2. `models/`
+3. `training/`
+4. `evaluation/` and `generation/`
+5. `inference/` and `cli.py`
+
+The CLI composes these modules and remains thin. Dataset parsing, model construction, and checkpoint validation stay in their owning modules.
+
+When a public contract changes, update the matching reference page, tests, and both language versions of the documentation.

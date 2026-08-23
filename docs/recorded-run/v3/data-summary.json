@@ -1,0 +1,13 @@
+{
+  "dataset_name": "tiny_shakespeare",
+  "manifest_identity": "22ab79d0c225b6b824e1f21a9a230036d0e1c880efeebd1a12975b71528553b3",
+  "source_sha256": "86c4e6aa9db7c042ec79f339dcb96d42b0075e16b8fc2e86bf0ca57e2dc565ed",
+  "source_bytes": 1115394,
+  "tokenizer": "char",
+  "vocab_size": 69,
+  "splits": {
+    "train": {"documents": 6433, "tokens": 1002843, "windows": 8090, "characters": 1002988},
+    "valid": {"documents": 357, "tokens": 59422, "windows": 466, "characters": 58708},
+    "test": {"documents": 358, "tokens": 52065, "windows": 442, "characters": 51349}
+  }
+}

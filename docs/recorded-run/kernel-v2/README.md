@@ -7,4 +7,4 @@ This directory preserves the exact source downloaded through the Kaggle API for 
 - Embedded source SHA-256: `04f4cefa7483fb984822917e06af8d16115565f5b25d270d0d48f23afbf7006f`.
 - Completed run metadata and metrics: [`../run.json`](../run.json) and [`../README.zh-CN.md`](../README.zh-CN.md).
 
-Future runners are generated under [`../kaggle/`](../kaggle/) and are expected to have a different source hash.
+Future runners are generated under [`../kaggle/README.zh-CN.md`](../kaggle/README.zh-CN.md) and are expected to have a different source hash.

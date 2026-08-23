@@ -162,6 +162,11 @@ def prepare_data(cfg: ExperimentConfig, *, overwrite: bool = False) -> Path:
             "created_at": datetime.now(timezone.utc).isoformat(),
             "source_root": str(cfg.data.corpus_dir.resolve()),
             "source_files": source_metadata,
+            "source": {
+                "url": cfg.data.source_url,
+                "version": cfg.data.source_version,
+                "license": cfg.data.source_license,
+            },
             "normalization": "NFKC+line-endings+horizontal-space-v1",
             "cleaning": cleaning_stats,
             "split_ratios": cfg.data.split_ratios,

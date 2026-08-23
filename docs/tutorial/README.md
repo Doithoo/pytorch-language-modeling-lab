@@ -1,13 +1,23 @@
-# 英文教程索引
+# Tutorial Overview
 
-This project is intentionally taught as a sequence of small contracts:
+This project teaches causal language modeling through small, inspectable contracts. Follow the pages in order when learning; use the guides and reference pages when operating the repository.
 
-1. [Environment and data](../guides/first-run.zh-CN.md): install the package, download the pinned corpus, prepare a relocatable manifest, and inspect it.
-2. [Bigram baseline](../../examples/01_bigram_forward.py): connect token ids, logits, shifted targets, cross-entropy, and greedy sampling.
-3. [Causal attention](../../examples/02_causal_attention.py): observe why future positions must not change past logits.
-4. **Decoder-only Transformer**: read embeddings, pre-LN blocks, attention, MLP, residuals, and tied output weights in `src/language_model/models/`.
-5. **Training and recovery**: follow `Trainer`, `ResumableBatchSampler`, checkpoint v2, token-weighted accumulation, and the interrupted-vs-continuous integration test.
-6. **Evaluation and generation**: compare loss, perplexity, token accuracy, bits-per-character, prompt suites, sampling policies, and KV cache.
-7. **Experiment comparison**: prepare separate manifests for character and BPE tokenizers, train with separate run names, and use `lm compare-runs`.
+```text
+download -> prepare -> inspect -> dry-run -> train -> evaluate -> generate
+```
 
-The Chinese guides contain the command-by-command walkthrough today. English mirrors are added as behavior changes land so examples remain executable instead of becoming stale translations.
+The first five tutorial pages use a pinned Tiny Shakespeare corpus and a character tokenizer. The project also includes a bigram baseline, byte-level BPE, learned positions, RoPE, readable attention, SDPA, checkpoint recovery, and KV-cache generation.
+
+The shortest local path is:
+
+```bash
+uv sync --locked --extra dev
+uv run python scripts/download_data.py
+uv run lm prepare-data --config configs/char_tiny.yaml
+uv run lm inspect-data --manifest data/manifests/tiny_corpus/manifest.json
+uv run lm train --config configs/char_tiny.yaml \
+  --manifest data/manifests/tiny_corpus/manifest.json \
+  --dry-run --device cpu
+```
+
+A dry run checks one forward/backward batch. It is not a quality benchmark. Complete GPU results are documented in [recorded runs](../recorded-run/README.md).

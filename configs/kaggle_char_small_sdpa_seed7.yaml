@@ -12,6 +12,9 @@ data:
   window_mode: document
   split_strategy: document_count
   group_by_source: false
+  source_url: https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
+  source_version: pinned-sha256-86c4e6aa
+  source_license: verify upstream terms before redistribution
 
 tokenizer:
   name: char

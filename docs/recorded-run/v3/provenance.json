@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "release_version": "0.2.2",
+  "kaggle_url": "https://www.kaggle.com/code/yashowhoo/pytorch-language-modeling-lab-gpu",
+  "kernel_version": 4,
+  "source_snapshot": {
+    "bytes": 154393,
+    "sha256": "c9b552ba7752eb271670576da7b94160a563fa58594f7a7ba84bcd36e70c607c"
+  },
+  "corpus": {
+    "name": "Tiny Shakespeare",
+    "url": "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt",
+    "sha256": "86c4e6aa9db7c042ec79f339dcb96d42b0075e16b8fc2e86bf0ca57e2dc565ed",
+    "license_note": "verify upstream terms before redistribution"
+  },
+  "manifest_identity": "22ab79d0c225b6b824e1f21a9a230036d0e1c880efeebd1a12975b71528553b3",
+  "tokenizer_fingerprint": "2f21f34c3e7146a043097c9d5c3e97a16de8d280f7e3a97fee031300ae5baf3e",
+  "checkpoints": {
+    "best": {
+      "step": 2750,
+      "bytes": 129254081,
+      "sha256": "20b79abd4f1238912d656ee9de6a25b2347ae0bc7cf892c2b66031574dcc944f"
+    },
+    "last": {
+      "step": 5000,
+      "bytes": 129254081,
+      "sha256": "5c41097055c708b4f0cac47b382139fd64f8483f7ca0a1b7afc600610b64875c"
+    }
+  },
+  "result": {
+    "status": "completed",
+    "parameters": 10763136,
+    "updates": 5000,
+    "processed_tokens": 39229485,
+    "best_validation_perplexity": 3.7939039662417247,
+    "test_perplexity": 3.827989421680991,
+    "test_accuracy_top1": 0.5866323708588779,
+    "test_accuracy_top5": 0.8709459067437678,
+    "tokens_per_second": 42466.1329258722,
+    "elapsed_seconds": 924.047514782,
+    "peak_memory_bytes": 2829815296
+  },
+  "environment": {
+    "python": "3.12.13",
+    "pytorch": "2.13.0+cu130",
+    "cuda": "13.0",
+    "gpu": "Tesla T4",
+    "compute_capability": "7.5"
+  },
+  "note": "This 0.2.2 run validates the updated source, provenance fields, packaging, and documentation release. Its quality metrics are consistent with the historical readable baseline; it is not presented as a quality improvement claim. Checkpoint binaries are intentionally excluded from Git."
+}

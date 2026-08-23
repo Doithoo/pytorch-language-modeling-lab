@@ -1,10 +1,10 @@
 # Scripts
 
-Core behavior lives in `src/language_model/`; scripts only orchestrate external workflows.
+Core behavior lives in `src/language_model/`; scripts orchestrate external workflows.
 
-- `download_data.py`: download pinned Tiny Shakespeare and verify SHA-256.
-- `plot_metrics.py`: plot train/validation loss from `metrics.csv`.
-- `kaggle/build_snapshot.py`: create the self-contained runner referenced by Kaggle metadata.
+- `download_data.py`: download the pinned Tiny Shakespeare source and verify SHA-256.
+- `plot_metrics.py`: plot training and validation loss from `metrics.csv`.
+- `kaggle/build_snapshot.py`: build the self-contained runner referenced by Kaggle metadata.
 
 ```bash
 uv run python scripts/download_data.py

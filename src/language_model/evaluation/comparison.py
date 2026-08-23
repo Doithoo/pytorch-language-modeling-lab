@@ -1,10 +1,15 @@
-"""Compare completed run summaries without loading model checkpoints."""
+"""Compare completed run summaries and report only valid metric rankings."""
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
 from typing import Any
+
+
+def _rank(rows: list[dict[str, Any]], metric: str) -> list[str]:
+    available = [row for row in rows if row.get(metric) is not None]
+    return [row["run"] for row in sorted(available, key=lambda row: float(row[metric]))]
 
 
 def compare_runs(run_directories: list[str | Path]) -> dict[str, Any]:
@@ -27,6 +32,8 @@ def compare_runs(run_directories: list[str | Path]) -> dict[str, Any]:
                 "parameters": summary.get("parameters"),
                 "global_step": summary.get("global_step"),
                 "processed_tokens": summary.get("processed_tokens"),
+                "manifest_identity": summary.get("manifest_identity"),
+                "tokenizer_fingerprint": summary.get("tokenizer_fingerprint"),
                 "valid_loss": valid.get("loss"),
                 "valid_perplexity": valid.get("perplexity"),
                 "test_loss": test.get("loss"),
@@ -38,8 +45,29 @@ def compare_runs(run_directories: list[str | Path]) -> dict[str, Any]:
                 "peak_memory_bytes": summary.get("peak_memory_bytes"),
             }
         )
-    ranked = sorted(
-        rows,
-        key=lambda row: float(row["test_perplexity"]) if row["test_perplexity"] is not None else float("inf"),
+
+    identities = {(row["manifest_identity"], row["tokenizer_fingerprint"]) for row in rows}
+    same_evaluation_contract = len(identities) == 1 and all(
+        row["manifest_identity"] and row["tokenizer_fingerprint"] for row in rows
     )
-    return {"runs": rows, "ranking_by_test_perplexity": [row["run"] for row in ranked]}
+    result: dict[str, Any] = {
+        "schema_version": 2,
+        "runs": rows,
+        "comparability": {
+            "test_perplexity": {
+                "comparable": same_evaluation_contract,
+                "reason": (
+                    "same manifest and tokenizer"
+                    if same_evaluation_contract
+                    else "requires the same manifest_identity and tokenizer_fingerprint"
+                ),
+            },
+            "text_normalized_metrics": {
+                "comparable": all(row["test_bits_per_character"] is not None for row in rows),
+                "reason": "bits-per-character/byte are the cross-tokenizer metrics",
+            },
+        },
+        "ranking_by_test_perplexity": _rank(rows, "test_perplexity") if same_evaluation_contract else [],
+        "ranking_by_test_bits_per_character": _rank(rows, "test_bits_per_character"),
+    }
+    return result

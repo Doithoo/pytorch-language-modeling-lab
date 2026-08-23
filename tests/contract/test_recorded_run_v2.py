@@ -13,6 +13,15 @@ ROOT = Path(__file__).resolve().parents[2]
 RECORDED = ROOT / "docs" / "recorded-run" / "v2"
 
 
+def test_recorded_run_catalog_points_to_existing_reports() -> None:
+    catalog = json.loads((ROOT / "docs" / "recorded-run" / "index.json").read_text(encoding="utf-8"))
+    assert catalog["schema_version"] == 1
+    assert catalog["current_release"] == "0.2.2"
+    assert catalog["canonical_package"] == "v3"
+    for run in catalog["runs"]:
+        assert (ROOT / "docs" / "recorded-run" / run["readme"]).is_file()
+
+
 def test_v2_recorded_run_provenance_and_metrics() -> None:
     provenance = json.loads((RECORDED / "provenance.json").read_text(encoding="utf-8"))
     run = json.loads((RECORDED / "run.json").read_text(encoding="utf-8"))
@@ -43,6 +52,31 @@ def test_v2_recorded_run_provenance_and_metrics() -> None:
     with zipfile.ZipFile(BytesIO(archive)) as bundle:
         assert "configs/kaggle_char_small_sdpa.yaml" in bundle.namelist()
         assert "requirements.lock" in bundle.namelist()
+
+
+def test_v3_recorded_run_provenance() -> None:
+    directory = ROOT / "docs" / "recorded-run" / "v3"
+    provenance = json.loads((directory / "provenance.json").read_text(encoding="utf-8"))
+    run = json.loads((directory / "run.json").read_text(encoding="utf-8"))
+    evaluation = json.loads((directory / "evaluation" / "summary.json").read_text(encoding="utf-8"))
+    assert provenance["release_version"] == "0.2.2"
+    assert provenance["kernel_version"] == 4
+    assert run["status"] == "completed"
+    assert run["manifest_identity"] == provenance["manifest_identity"]
+    assert evaluation["checkpoint_sha256"] == provenance["checkpoints"]["best"]["sha256"]
+    assert evaluation["test"]["perplexity"] == provenance["result"]["test_perplexity"]
+    runner = ast.parse((directory / "runner-v4.py").read_text(encoding="utf-8"))
+    values = {
+        node.targets[0].id: ast.literal_eval(node.value)
+        for node in runner.body
+        if isinstance(node, ast.Assign)
+        and isinstance(node.targets[0], ast.Name)
+        and node.targets[0].id in {"SNAPSHOT_SHA256", "SNAPSHOT_BASE64"}
+    }
+    archive = base64.b64decode(values["SNAPSHOT_BASE64"])
+    assert values["SNAPSHOT_SHA256"] == provenance["source_snapshot"]["sha256"]
+    assert len(archive) == provenance["source_snapshot"]["bytes"]
+    assert hashlib.sha256(archive).hexdigest() == values["SNAPSHOT_SHA256"]
 
 
 def test_v2_rope_recorded_run_provenance() -> None:

@@ -1,4 +1,4 @@
-# PyTorch 语言模型实验室
+# PyTorch 语言模型项目
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-blue)](pyproject.toml)
@@ -6,11 +6,24 @@
 
 **English: [README.md](README.md)**
 
-这是一个面向学习者的 PyTorch 自回归语言模型项目。它从可读的 bigram 基线开始，逐步进入字符级/BPE tokenizer、GPT 风格 decoder-only Transformer、可恢复训练、困惑度评估和带 KV cache 的文本生成。
+这是一个用于学习和复现实验的 PyTorch 自回归语言模型项目。它从可读的 bigram 基线开始，逐步介绍字符级/BPE tokenizer、GPT 风格 decoder-only Transformer、可恢复训练、困惑度评估和带 KV cache 的文本生成。
 
-这是 `0.2.1` 优化版本。Kaggle 已完成 readable、SDPA、RoPE、seed 7/42/123 配对复现和 RoPE cache 性能验证。RoPE + SDPA 三 seed 平均 test perplexity 为 **3.610572**，learned + SDPA 为 3.859203；共享 autocast-aware cache 保持等价质量与基线级吞吐。最新记录见 [v2 recorded run](docs/recorded-run/v2/README.zh-CN.md)。
+这是 `0.2.2` 工程改进版本。Kaggle 已使用 version 4 完成新的 GPU 验证运行，结果与历史 readable baseline 一致；本版本主要更新工程、文档、provenance 和比较规则，不代表模型质量提升。完整记录见 [v3 recorded run](docs/recorded-run/v3/README.zh-CN.md)。
 
-## 已完成的 Kaggle 训练
+当前对照结果包括 RoPE + SDPA 三 seed 平均 test perplexity **3.610572**，learned + SDPA 为 3.859203；历史记录见 [v2 recorded run](docs/recorded-run/v2/README.zh-CN.md)。
+
+## 实验结果概览
+
+| 实验 | 版本 | test perplexity | 用途 |
+| --- | --- | ---: | --- |
+| readable attention | 0.2.0 | 3.827989 | 代码最直观的 baseline |
+| learned + SDPA | 0.2.0 | 3.859203 mean | attention 实现对照 |
+| RoPE + SDPA | 0.2.0 | **3.610572 mean** | 三 seed 位置编码研究 |
+| cached RoPE | 0.2.1 | 3.570488 (seed 42) | cache 性能优化 |
+
+这些结果来自 Tiny Shakespeare 上固定数据和配置的实验，不是通用语言模型基准。不同 tokenizer 的 token-level perplexity 不直接比较，应同时观察 BPC/BPB。
+
+## 已完成的 baseline 训练
 
 | 项目 | 结果 |
 | --- | ---: |
@@ -22,7 +35,7 @@
 | 测试 top-5 accuracy | **0.870946** |
 | 测试 bits-per-character | **1.950089** |
 
-![Tiny Shakespeare 训练与验证 loss](docs/recorded-run/v2/training-curves.png))
+![Tiny Shakespeare 训练与验证 loss](docs/recorded-run/v2/training-curves.png)
 
 完整配置、20 次验证记录、环境、生成样例和 hash 见 [v2 Kaggle 训练记录](docs/recorded-run/v2/README.zh-CN.md)。仓库不提交 checkpoint，可从对应 kernel version 3 下载。
 
@@ -36,7 +49,7 @@
 git clone https://github.com/Doithoo/pytorch-language-modeling-lab.git
 cd pytorch-language-modeling-lab
 uv sync --locked --extra dev
-uv run python -m pytest -W error::DeprecationWarning
+make test
 uv run python scripts/kaggle/build_snapshot.py
 ```
 
@@ -63,7 +76,7 @@ kaggle kernels output <你的用户名>/pytorch-language-modeling-lab-gpu \
 
 重点查看 `metrics.csv`、`checkpoints/best.pt`、`checkpoints/last.pt`、`evaluation/summary.json`、`evaluation/prompts.jsonl`、`environment.json` 和 `kaggle-run-summary.json`。完整操作与中断续训见 [Kaggle 指南](docs/guides/kaggle.zh-CN.md)。
 
-## 本地学习路径
+## 本地使用顺序
 
 ### 安装和下载语料
 
@@ -107,7 +120,7 @@ uv run lm generate \
 
 checkpoint 内嵌 tokenizer，因此生成不依赖当前目录中的隐式词表。评估仍要求 manifest，以确认 test 数据身份。若 manifest 与 token 文件不在原始绝对路径，可使用 `--processed-root` 指向 `.bin` 所在目录。
 
-## 可以学到什么
+## 主要内容
 
 - 连续文本如何变成右移一位的 `input_ids` 和 `targets`。
 - 为什么必须先按文档切分，再训练 tokenizer 和创建窗口。
@@ -119,7 +132,7 @@ checkpoint 内嵌 tokenizer，因此生成不依赖当前目录中的隐式词�
 - 可移动 manifest、双目录回滚发布、严格配置类型校验和运行对比 CLI。
 - `best.pt` 与 `last.pt` 的区别，以及 optimizer/scheduler/RNG 如何恢复。
 - temperature、top-k、top-p、EOS 与 KV cache 如何影响生成。
-- 如何把 Kaggle 的 GPU、源码、语料、配置和 checkpoint 记录为可检查证据。
+- 如何把 Kaggle 的 GPU、源码、语料、配置和 checkpoint 记录到运行目录中。
 
 ## 已实现的模型与 tokenizer
 
@@ -127,13 +140,13 @@ checkpoint 内嵌 tokenizer，因此生成不依赖当前目录中的隐式词�
 | --- | --- |
 | `bigram` | 最小 next-token 基线，适合理解 logits、loss 和采样 |
 | `transformer_decoder` | pre-LN GPT 风格 causal Transformer，支持 KV cache |
-| `char` | 确定性字符词表，最适合第一条学习路线 |
+| `char` | 确定性字符词表，适合默认流程 |
 | `bpe` | 基于 Hugging Face tokenizers 的 byte-level BPE |
 
 配置入口：
 
 - `configs/bigram_tiny.yaml`：bigram 基线。
-- `configs/char_tiny.yaml`：本地字符级教学配置。
+- `configs/char_tiny.yaml`：本地字符级配置。
 - `configs/bpe_tiny.yaml`：BPE 对照实验。
 - `configs/kaggle_char_small.yaml`：Kaggle 正式训练起点。
 
@@ -144,7 +157,7 @@ configs/                     实验配置
 data/                        raw、processed 与 manifests
 artifacts/                   每次训练的隔离产物
 docs/                        教程、概念、指南、参考和 recorded run
-examples/                    短小教学代码
+examples/                    短小示例代码
 scripts/                     下载、绘图和 Kaggle runner 构建
 src/language_model/
   data/                      语料、切分、manifest、memmap dataset
@@ -157,7 +170,7 @@ src/language_model/
 tests/                       unit、contract、integration
 ```
 
-先从[文档首页](docs/README.zh-CN.md)选择学习路线。架构和兼容性边界见 [ADR 0001](docs/architecture/0001-reproducible-causal-language-model-contracts.zh-CN.md)。
+先从[文档首页](docs/README.zh-CN.md)选择使用顺序。完整契约、CLI、配置和输出说明见[文档站导航](docs/README.zh-CN.md)；架构和兼容性边界见 [ADR 0001](docs/architecture/0001-reproducible-causal-language-model-contracts.zh-CN.md)。
 
 ## 开发检查
 
@@ -165,7 +178,7 @@ tests/                       unit、contract、integration
 uv run ruff check .
 uv run ruff format --check .
 uv run mypy
-uv run pytest -W error::DeprecationWarning
+make test
 uv build
 ```
 

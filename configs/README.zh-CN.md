@@ -4,8 +4,9 @@
 
 | 文件 | 用途 |
 | --- | --- |
-| `bigram_tiny.yaml` | 字符级 bigram 教学基线 |
+| `bigram_tiny.yaml` | 字符级 bigram baseline |
 | `char_tiny.yaml` | 本地字符级 Transformer 与 CPU dry run |
+| `learning_cpu.yaml` | 可完整执行的轻量 CPU 训练 |
 | `bpe_tiny.yaml` | 512 词表 BPE 对照实验，使用独立 manifest |
 | `kaggle_char_small.yaml` | `/kaggle/working` 路径、AMP、单 GPU、readable attention 正式训练 |
 | `kaggle_char_small_sdpa.yaml` | 与 readable 相同预算的 PyTorch SDPA attention 对照 |

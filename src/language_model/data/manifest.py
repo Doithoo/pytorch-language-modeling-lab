@@ -69,6 +69,12 @@ def _validate_manifest(manifest: dict[str, Any]) -> None:
     if len(set(ids)) != 4 or any(token_id >= vocab_size for token_id in ids):
         raise ManifestError("manifest special token ids must be unique and within the vocabulary")
 
+    source = _mapping(manifest.get("source", {}), "source")
+    for field in ("url", "version", "license"):
+        value = source.get(field)
+        if value is not None:
+            _string(value, f"source.{field}")
+
     source_files = manifest.get("source_files")
     if not isinstance(source_files, list) or not source_files:
         raise ManifestError("manifest field source_files must be a non-empty list")

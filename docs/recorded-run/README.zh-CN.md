@@ -1,8 +1,8 @@
 # Kaggle Tiny Shakespeare 训练记录
 
-[Kaggle 训练指南](../guides/kaggle.zh-CN.md) | [参考配置](../../configs/kaggle_char_small.yaml) | [项目首页](../../README.zh-CN.md)
+[Kaggle 训练指南](../guides/kaggle.zh-CN.md) | [运行目录](index.json) | [参考配置](https://github.com/Doithoo/pytorch-language-modeling-lab/blob/main/configs/kaggle_char_small.yaml) | [项目首页](https://github.com/Doithoo/pytorch-language-modeling-lab/blob/main/README.zh-CN.md)
 
-这是项目发布的首次完整训练结果。Kaggle kernel version 2 于 2026-08-22 在 Tesla T4 上完成 5,000 updates，使用验证集选出的 step 3000 `best.pt` 一次性评估 test split。
+当前 `0.2.2` 版本的 GPU 验证见 [v3 运行记录](v3/README.zh-CN.md)。本页保留首次完整训练的历史记录；v2 则记录后续 readable/SDPA/RoPE 对照研究。
 
 - 页面：<https://www.kaggle.com/code/yashowhoo/pytorch-language-modeling-lab-gpu>
 - 模型：6 层 decoder-only Transformer，384 hidden，6 heads，256 context。
@@ -49,7 +49,7 @@ This is god sickness in the house.
 | valid | 357 | 59,422 | 466 |
 | test | 358 | 52,065 | 442 |
 
-源文件 1,115,394 bytes，SHA-256 为 `86c4e6aa...565ed`。manifest identity 为 `cb49ae60...5a1c`，tokenizer fingerprint 为 `2f21f34c...af3e`。完整轻量摘要见 [`data-summary.json`](data-summary.json)。
+源文件 1,115,394 bytes，SHA-256 为 `86c4e6aa...565ed`。manifest identity 为 `cb49ae60...5a1c`，tokenizer fingerprint 为 `2f21f34c...af3e`。完整摘要见 [`data-summary.json`](data-summary.json)。
 
 ## 环境
 
@@ -69,9 +69,9 @@ This is god sickness in the house.
 | 被评估 `best.pt` | `c00c1cbaa5761640134c148695f09ece4f4bc299cb337d0a6aa029841b8af4ba` |
 | 最终 `last.pt` | `fb739e3d5dd0eebb178c77f9daaaf1765685971e294dad1f5e935fcb9cd6c05a` |
 
-仓库同时冻结了完成该任务的历史 kernel version 2 源码证据：[kernel-v2/](kernel-v2/)。当前目录下的 `kaggle/run_kaggle.py` 是按最新源码重建的未来提交 runner，hash 不必与历史记录相同。
+仓库同时冻结了完成该任务的历史 kernel version 2 源码证据：[`kernel-v2/README.md`](kernel-v2/README.md)。当前目录下的 `kaggle/run_kaggle.py` 是按最新源码重建的未来提交 runner，hash 不必与历史记录相同。
 
-仓库保留以下轻量证据：
+仓库保留以下运行文件：
 
 - [`metrics.csv`](metrics.csv)：20 次验证记录。
 - [`evaluation/summary.json`](evaluation/summary.json)：best checkpoint 的 valid/test 指标。

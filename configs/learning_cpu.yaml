@@ -1,0 +1,62 @@
+data:
+  corpus_dir: data/raw
+  processed_dir: data/processed
+  manifest_dir: data/manifests
+  dataset_name: tiny_corpus_learning_cpu
+  tokenizer_name: char
+  context_length: 64
+  stride: 64
+  split_ratios: [0.9, 0.05, 0.05]
+  seed: 42
+  num_workers: 0
+  window_mode: document
+
+tokenizer:
+  name: char
+  vocab_size: null
+  min_frequency: 1
+  special_tokens: ["<pad>", "<bos>", "<eos>", "<unk>"]
+
+model:
+  name: transformer_decoder
+  vocab_size: null
+  context_length: 64
+  n_layers: 2
+  n_heads: 2
+  d_model: 64
+  d_ff: 256
+  dropout: 0.0
+  positional_encoding: learned
+  tie_embeddings: true
+  attention_implementation: readable
+
+train:
+  max_steps: 20
+  batch_size: 8
+  gradient_accumulation_steps: 1
+  learning_rate: 0.001
+  weight_decay: 0.0
+  warmup_steps: 2
+  max_grad_norm: 1.0
+  amp: false
+  eval_interval: 10
+  eval_batches: 5
+  save_interval: 10
+  log_interval: 5
+  best_metric: val_loss
+
+generation:
+  max_new_tokens: 80
+  temperature: 0.8
+  top_k: 20
+  top_p: 0.95
+  use_cache: true
+  seed: 42
+  prompts: ["ROMEO:"]
+
+runtime:
+  device: cpu
+  seed: 42
+  output_dir: artifacts
+  run_name: learning-cpu
+  deterministic: true

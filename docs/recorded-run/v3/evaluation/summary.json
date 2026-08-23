@@ -1,0 +1,31 @@
+{
+  "checkpoint": "best.pt",
+  "checkpoint_sha256": "20b79abd4f1238912d656ee9de6a25b2347ae0bc7cf892c2b66031574dcc944f",
+  "manifest_identity": "22ab79d0c225b6b824e1f21a9a230036d0e1c880efeebd1a12975b71528553b3",
+  "test": {
+    "accuracy_top1": 0.5866323708588779,
+    "accuracy_top5": 0.8709459067437678,
+    "batches": 7,
+    "bits_per_byte": 1.9500885293659602,
+    "bits_per_character": 1.9500885293659602,
+    "characters": 51349,
+    "loss": 1.34233971018067,
+    "negative_log_likelihood": 69408.3593943119,
+    "perplexity": 3.827989421680991,
+    "tokens": 51707,
+    "utf8_bytes": 51349
+  },
+  "valid": {
+    "accuracy_top1": 0.585439769745196,
+    "accuracy_top5": 0.8705493947346145,
+    "batches": 8,
+    "bits_per_byte": 1.9353809683757148,
+    "bits_per_character": 1.9353809683757148,
+    "characters": 58708,
+    "loss": 1.3333955591844884,
+    "negative_log_likelihood": 78757.00870323181,
+    "perplexity": 3.7939039662417247,
+    "tokens": 59065,
+    "utf8_bytes": 58708
+  }
+}

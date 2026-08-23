@@ -25,11 +25,11 @@
 
 RoPE + SDPA 的训练吞吐约 47.9k-50.3k token/s，learned + SDPA 约 58.9k-60.0k token/s。RoPE 在当前实现中获得更好质量，但每 step 计算更慢；后续优化方向是预计算 cos/sin cache，而不是改变实验结论。
 
-## 证据
+## 文件
 
 - [`summary.json`](summary.json)：三 seed 配对结果、均值、标准差、kernel 和 checkpoint hash。
-- [`seed7/sdpa/`](seed7/sdpa/) 与 [`seed7/rope/`](seed7/rope/)：seed 7 配置、manifest、指标、评估和环境。
-- [`seed123/sdpa/`](seed123/sdpa/) 与 [`seed123/rope/`](seed123/rope/)：seed 123 的对应证据。
-- Seed 42 证据位于 [`../sdpa/`](../sdpa/) 与 [`../rope/`](../rope/)。
+- [`seed7/sdpa/run.json`](seed7/sdpa/run.json) 与 [`seed7/rope/run.json`](seed7/rope/run.json)：seed 7 配置、manifest、指标、评估和环境。
+- [`seed123/sdpa/run.json`](seed123/sdpa/run.json) 与 [`seed123/rope/run.json`](seed123/rope/run.json)：seed 123 的对应证据。
+- Seed 42 证据位于 [`../sdpa/README.zh-CN.md`](../sdpa/README.zh-CN.md) 与 [`../rope/README.zh-CN.md`](../rope/README.zh-CN.md)。
 
 四个新增 kernel 的 version 1 因 runner manifest 路径硬编码而在训练前失败；修复后 version 2 完成。失败版本不进入统计结果。

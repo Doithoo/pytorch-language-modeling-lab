@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pytorch-language-modeling-lab"
-version = "0.2.1"
-description = "An educational, reproducible PyTorch causal language modeling lab"
+version = "0.2.2"
+description = "A small, reproducible PyTorch causal language modeling project"
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
 license = "MIT"
@@ -39,12 +39,13 @@ dev = [
     "matplotlib>=3.8,<4",
     "pre-commit>=3,<5",
     "twine>=5,<7",
+    "mkdocs-material>=9.5,<10",
 ]
 
 [project.urls]
 Homepage = "https://github.com/Doithoo/pytorch-language-modeling-lab"
 Repository = "https://github.com/Doithoo/pytorch-language-modeling-lab"
-Documentation = "https://github.com/Doithoo/pytorch-language-modeling-lab#readme"
+Documentation = "https://github.com/Doithoo/pytorch-language-modeling-lab/tree/main/docs"
 Issues = "https://github.com/Doithoo/pytorch-language-modeling-lab/issues"
 
 [project.scripts]
@@ -61,6 +62,7 @@ language_model = ["py.typed"]
     "configs/bigram_tiny.yaml",
     "configs/bpe_tiny.yaml",
     "configs/char_tiny.yaml",
+    "configs/learning_cpu.yaml",
     "configs/kaggle_char_small.yaml",
     "configs/kaggle_char_small_sdpa.yaml",
     "configs/kaggle_char_small_rope.yaml",

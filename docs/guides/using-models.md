@@ -15,6 +15,8 @@ Verify the readable checkpoint against `docs/recorded-run/v2/provenance.json`:
 
 ```bash
 shasum -a 256 kaggle-output/artifacts/kaggle-char-small/checkpoints/best.pt
+# Expected for v2 readable best.pt:
+test "$(shasum -a 256 kaggle-output/artifacts/kaggle-char-small/checkpoints/best.pt | cut -d ' ' -f 1)" = "8efffb073a1c5caec7fc473900d06d7719628f531c517ee451950dca103fbb41"
 ```
 
 For the SDPA checkpoint, use:
@@ -35,7 +37,7 @@ kaggle kernels output yashowhoo/pytorch-language-modeling-lab-gpu-rope \
 shasum -a 256 kaggle-output-rope/artifacts/kaggle-char-small-rope/checkpoints/best.pt
 ```
 
-Expected hashes are listed in the corresponding provenance files under [`docs/recorded-run/v2/`](../recorded-run/v2/README.md).
+The current v2 readable checkpoint hash is shown below; use the matching provenance file for SDPA, RoPE, and cached RoPE artifacts.
 
 ## Generate
 

@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "current_release": "0.2.2",
+  "canonical_package": "v3",
+  "runs": [
+    {
+      "name": "release-0.2.2-gpu-validation",
+      "release": "0.2.2",
+      "purpose": "current release GPU validation",
+      "path": "v3",
+      "readme": "v3/README.md",
+      "manifest_identity": "22ab79d0c225b6b824e1f21a9a230036d0e1c880efeebd1a12975b71528553b3",
+      "tokenizer": "char",
+      "attention": "readable",
+      "positional_encoding": "learned",
+      "seeds": [42],
+      "kernel_version": 4,
+      "kaggle_url": "https://www.kaggle.com/code/yashowhoo/pytorch-language-modeling-lab-gpu"
+    },
+    {
+      "name": "readable",
+      "release": "0.2.0",
+      "purpose": "readable baseline",
+      "path": "v2",
+      "readme": "v2/README.md",
+      "manifest_identity": "3059ee14b15d07394999ce01c0fec50398207999c13efbeea92dba8da2ca12b0",
+      "tokenizer": "char",
+      "attention": "readable",
+      "positional_encoding": "learned",
+      "seeds": [42],
+      "kaggle_url": "https://www.kaggle.com/code/yashowhoo/pytorch-language-modeling-lab-gpu"
+    },
+    {
+      "name": "learned-sdpa-multiseed",
+      "release": "0.2.0",
+      "purpose": "paired positional-encoding control",
+      "path": "v2/multiseed",
+      "readme": "v2/multiseed/README.zh-CN.md",
+      "tokenizer": "char",
+      "attention": "sdpa",
+      "positional_encoding": "learned",
+      "seeds": [42, 7, 123]
+    },
+    {
+      "name": "rope-sdpa-multiseed",
+      "release": "0.2.0",
+      "purpose": "paired positional-encoding study",
+      "path": "v2/multiseed",
+      "readme": "v2/multiseed/README.zh-CN.md",
+      "tokenizer": "char",
+      "attention": "sdpa",
+      "positional_encoding": "rotary",
+      "seeds": [42, 7, 123]
+    },
+    {
+      "name": "cached-rope",
+      "release": "0.2.1",
+      "purpose": "shared RoPE cache optimization",
+      "path": "v2/rope-cache",
+      "readme": "v2/rope-cache/README.zh-CN.md",
+      "manifest_identity": "3059ee14b15d07394999ce01c0fec50398207999c13efbeea92dba8da2ca12b0",
+      "tokenizer": "char",
+      "attention": "sdpa",
+      "positional_encoding": "rotary",
+      "seeds": [42],
+      "kaggle_url": "https://www.kaggle.com/code/yashowhoo/pytorch-language-modeling-lab-gpu-rope-cached"
+    }
+  ]
+}

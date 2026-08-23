@@ -10,6 +10,8 @@ kaggle kernels output yashowhoo/pytorch-language-modeling-lab-gpu \
   --file-pattern 'artifacts/kaggle-char-small/checkpoints/best.pt' \
   -p kaggle-output
 shasum -a 256 kaggle-output/artifacts/kaggle-char-small/checkpoints/best.pt
+# v2 readable best.pt 的期望 hash：
+test "$(shasum -a 256 kaggle-output/artifacts/kaggle-char-small/checkpoints/best.pt | cut -d ' ' -f 1)" = "8efffb073a1c5caec7fc473900d06d7719628f531c517ee451950dca103fbb41"
 ```
 
 SDPA checkpoint：
@@ -30,7 +32,7 @@ kaggle kernels output yashowhoo/pytorch-language-modeling-lab-gpu-rope \
 shasum -a 256 kaggle-output-rope/artifacts/kaggle-char-small-rope/checkpoints/best.pt
 ```
 
-期望 hash 见 [`docs/recorded-run/v2/`](../recorded-run/v2/README.zh-CN.md) 下对应实验的 provenance 文件。
+当前 v2 readable checkpoint 的 hash 已在上方校验；SDPA、RoPE 和 cached RoPE 使用对应实验目录中的 provenance 文件。
 
 ## 生成
 

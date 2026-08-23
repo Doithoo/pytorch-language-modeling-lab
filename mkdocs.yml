@@ -1,0 +1,119 @@
+site_name: PyTorch Language Modeling Lab
+site_description: A small, reproducible PyTorch causal language modeling project
+repo_url: https://github.com/Doithoo/pytorch-language-modeling-lab
+repo_name: Doithoo/pytorch-language-modeling-lab
+docs_dir: docs
+site_dir: build/site
+strict: true
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - content.tabs.link
+markdown_extensions:
+  - tables
+  - fenced_code
+  - admonition
+  - toc:
+      permalink: true
+nav:
+  - Home: README.md
+  - 中文首页: README.zh-CN.md
+  - Tutorial:
+      - Overview: tutorial/README.md
+      - Basics: tutorial/00-basics.md
+      - Environment: tutorial/01-environment.md
+      - Data and tokenization: tutorial/02-data-and-tokenization.md
+      - Models: tutorial/03-models.md
+      - Training and recovery: tutorial/04-training-and-resume.md
+      - Evaluation and generation: tutorial/05-evaluation-and-generation.md
+  - 中文教程:
+      - 导航: tutorial/README.zh-CN.md
+      - 基础: tutorial/00-basics.zh-CN.md
+      - 环境: tutorial/01-environment.zh-CN.md
+      - 数据与 tokenizer: tutorial/02-data-and-tokenization.zh-CN.md
+      - 模型: tutorial/03-models.zh-CN.md
+      - 训练与恢复: tutorial/04-training-and-resume.zh-CN.md
+      - 评估与生成: tutorial/05-evaluation-and-generation.zh-CN.md
+  - Concepts:
+      - Language modeling flow: concepts/language-modeling-flow.md
+      - Decoder-only Transformer: concepts/decoder-only-transformer.md
+      - Generation and sampling: concepts/generation.md
+      - Code tour: concepts/code-tour.md
+  - 中文概念:
+      - 语言模型流程: concepts/language-modeling-flow.zh-CN.md
+      - Decoder-only Transformer: concepts/decoder-only-transformer.zh-CN.md
+      - 生成与采样: concepts/generation.zh-CN.md
+      - 代码导览: concepts/code-tour.zh-CN.md
+  - Guides:
+      - First run: guides/first-run.md
+      - Using your data: guides/using-your-data.md
+      - Experiments: guides/experiments.md
+      - Using published models: guides/using-models.md
+      - Kaggle: guides/kaggle.md
+      - Troubleshooting: guides/troubleshooting.md
+      - Adding models: guides/adding-models.md
+  - 中文指南:
+      - 第一次运行: guides/first-run.zh-CN.md
+      - 使用自己的数据: guides/using-your-data.zh-CN.md
+      - 实验比较: guides/experiments.zh-CN.md
+      - 使用已发布模型: guides/using-models.zh-CN.md
+      - Kaggle: guides/kaggle.zh-CN.md
+      - 排障: guides/troubleshooting.zh-CN.md
+      - 添加模型: guides/adding-models.zh-CN.md
+  - Reference:
+      - CLI and outputs: reference/cli-and-outputs.md
+      - Configuration: reference/config-reference.md
+      - Data manifest: reference/data-manifest.md
+      - Dataset card: reference/dataset-card.md
+      - Model card: reference/model-card.md
+      - Metrics: reference/metrics.md
+      - Checkpoint schema: reference/checkpoint-schema.md
+      - Model zoo: reference/model-zoo.md
+  - 中文参考:
+      - CLI 与输出: reference/cli-and-outputs.zh-CN.md
+      - 配置: reference/config-reference.zh-CN.md
+      - 数据 manifest: reference/data-manifest.zh-CN.md
+      - 数据集说明: reference/dataset-card.zh-CN.md
+      - 模型卡: reference/model-card.zh-CN.md
+      - 指标: reference/metrics.zh-CN.md
+      - Checkpoint: reference/checkpoint-schema.zh-CN.md
+      - 模型清单: reference/model-zoo.zh-CN.md
+  - Architecture:
+      - Reproducible contracts: architecture/0001-reproducible-causal-language-model-contracts.md
+  - 中文架构:
+      - 可复现实验契约: architecture/0001-reproducible-causal-language-model-contracts.zh-CN.md
+      - 当前架构与路线: IMPLEMENTATION_PLAN.zh-CN.md
+  - Recorded runs:
+      - Index: recorded-run/README.md
+      - Machine-readable catalog: recorded-run/index.json
+      - v3 current release validation: recorded-run/v3/README.md
+      - v2 study: recorded-run/v2/README.md
+      - v2 multiseed replication: recorded-run/v2/multiseed/README.md
+      - v2 SDPA comparison: recorded-run/v2/sdpa/README.md
+      - v2 RoPE comparison: recorded-run/v2/rope/README.md
+      - v2 cached RoPE: recorded-run/v2/rope-cache/README.md
+      - Historical Kaggle runner: recorded-run/kaggle/README.zh-CN.md
+      - Historical SDPA runner: recorded-run/kaggle-sdpa/README.zh-CN.md
+      - Historical RoPE runner: recorded-run/kaggle-rope/README.zh-CN.md
+      - Cached RoPE runner: recorded-run/kaggle-rope-cached/README.md
+      - Frozen kernel v2: recorded-run/kernel-v2/README.md
+      - Seed 7 SDPA runner: recorded-run/kaggle-seed7-sdpa/README.md
+      - Seed 7 RoPE runner: recorded-run/kaggle-seed7-rope/README.md
+      - Seed 123 SDPA runner: recorded-run/kaggle-seed123-sdpa/README.md
+      - Seed 123 RoPE runner: recorded-run/kaggle-seed123-rope/README.md
+  - 中文运行记录:
+      - 索引: recorded-run/README.zh-CN.md
+      - 机器可读目录: recorded-run/index.json
+      - v3 当前版本验证: recorded-run/v3/README.zh-CN.md
+      - v2 研究: recorded-run/v2/README.zh-CN.md
+      - v2 多 seed: recorded-run/v2/multiseed/README.zh-CN.md
+      - v2 SDPA: recorded-run/v2/sdpa/README.zh-CN.md
+      - v2 RoPE: recorded-run/v2/rope/README.zh-CN.md
+      - v2 cached RoPE: recorded-run/v2/rope-cache/README.zh-CN.md
+      - Kaggle runner: recorded-run/kaggle/README.zh-CN.md
+      - SDPA runner: recorded-run/kaggle-sdpa/README.zh-CN.md
+      - RoPE runner: recorded-run/kaggle-rope/README.zh-CN.md

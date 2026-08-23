@@ -28,6 +28,15 @@ uv run lm prepare-data --config configs/char_tiny.yaml
 uv run lm prepare-data --config configs/char_tiny.yaml --overwrite
 ```
 
+准备完成后，可以使用轻量配置在本地完整训练一次：
+
+```bash
+uv run lm prepare-data --config configs/learning_cpu.yaml
+uv run lm train --config configs/learning_cpu.yaml \
+  --manifest data/manifests/tiny_corpus_learning_cpu/manifest.json \
+  --device cpu
+```
+
 ## 3. 检查和 dry run
 
 ```bash

@@ -33,13 +33,13 @@ The old recorded run reached validation perplexity 3.786090 and test perplexity 
 
 ## Readable vs SDPA
 
-The same `0.2.0` configuration was run with PyTorch SDPA as a controlled attention implementation comparison. SDPA completed in 666.0 seconds at 58,921.9 token/s and about 1.66 GiB peak CUDA memory; the readable run took 940.2 seconds at 41,735.7 token/s and about 2.64 GiB. Test perplexity was 3.818914 vs 3.827989, and test top-1 accuracy was 0.590230 vs 0.586632. See the [SDPA comparison record](sdpa/README.zh-CN.md).
+The same `0.2.0` configuration was run with PyTorch SDPA as a controlled attention implementation comparison. SDPA completed in 666.0 seconds at 58,921.9 token/s and about 1.66 GiB peak CUDA memory; the readable run took 940.2 seconds at 41,735.7 token/s and about 2.64 GiB. Test perplexity was 3.818914 vs 3.827989, and test top-1 accuracy was 0.590230 vs 0.586632. See the [SDPA comparison record](sdpa/README.md).
 
 
-The same `0.2.0` configuration was also run with RoPE positional encoding. RoPE reached test perplexity 3.570483 and top-1 accuracy 0.606417 in the seed-42 run, compared with 3.818914 and 0.590230 for learned positions with SDPA. Two additional paired seeds confirmed the direction: mean test perplexity was 3.610572 for RoPE vs 3.859203 for learned positions. See the [three-seed replication](multiseed/README.zh-CN.md) and [RoPE comparison record](rope/README.zh-CN.md).
+The same `0.2.0` configuration was also run with RoPE positional encoding. RoPE reached test perplexity 3.570483 and top-1 accuracy 0.606417 in the seed-42 run, compared with 3.818914 and 0.590230 for learned positions with SDPA. Two additional paired seeds confirmed the direction: mean test perplexity was 3.610572 for RoPE vs 3.859203 for learned positions. See the [three-seed replication](multiseed/README.md) and [RoPE comparison record](rope/README.md).
 
 
-The `0.2.1` shared autocast-aware RoPE table removed repeated trigonometric work while retaining equivalent quality and baseline-level throughput. See the [cache optimization record](rope-cache/README.zh-CN.md).
+The `0.2.1` shared autocast-aware RoPE table removed repeated trigonometric work while retaining equivalent quality and baseline-level throughput. See the [cache optimization record](rope-cache/README.md).
 
 
 - [`manifest.json`](manifest.json): prepared data identity and split metadata.

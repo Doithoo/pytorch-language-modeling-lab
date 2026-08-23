@@ -32,7 +32,7 @@ def _common_config(parser: argparse.ArgumentParser) -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="lm", description="Educational causal language modeling lab")
+    parser = argparse.ArgumentParser(prog="lm", description="Causal language modeling project")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     subparsers = parser.add_subparsers(dest="command", required=True)
 

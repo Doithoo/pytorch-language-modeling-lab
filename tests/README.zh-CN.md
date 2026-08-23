@@ -8,7 +8,8 @@
 - `fixtures/`：只存放未来需要的极小静态输入；当前语料由 pytest 临时生成。
 
 ```bash
-uv run pytest -W error::DeprecationWarning
+make test
+
 ```
 
 测试不联网、不下载语料、不需要 GPU。随机测试显式设置 seed；cache 与 no-cache 使用数值容差比较。大型 Kaggle 训练不进入 CI，完成证据由 `docs/recorded-run/` 单独记录。

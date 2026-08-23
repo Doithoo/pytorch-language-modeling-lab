@@ -24,7 +24,8 @@ jobs:
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run mypy
-      - run: uv run python -m pytest -W error::DeprecationWarning
+      - run: make test
+      - run: uv run mkdocs build --strict
 
   package:
     runs-on: ubuntu-latest

@@ -1,8 +1,8 @@
 # 在 Kaggle GPU 上训练语言模型
 
-这是本项目推荐的正式训练方式。Kaggle 免费 GPU 用于完整语料训练、验证、最终评估和生成样例；本地环境只需要能够运行 CPU 测试和 dry run，不要求安装 CUDA。
+这是本项目推荐的完整训练方式。Kaggle GPU 负责完整语料的训练、验证、最终评估和生成；本地环境负责 CPU 测试、数据检查和 dry run，不要求安装 CUDA。
 
-> 已验证：`0.2.0` kernel version 3 已在 Tesla T4 上完成 5,000 updates、最终 valid/test 评估和 KV-cache 生成。实际结果见 [最新 v2 训练记录](../recorded-run/v2/README.zh-CN.md)。历史 version 2 记录仍保留用于追溯。
+> 已验证：`0.2.2` kernel version 4 已在 Tesla T4 上完成 5,000 updates、最终 valid/test 评估和 KV-cache 生成。结果见 [v3 训练记录](../recorded-run/v3/README.zh-CN.md)。历史 v2 记录仍保留用于对照。
 
 ## 环境分工
 
@@ -63,7 +63,8 @@ uv sync --locked --extra dev
 uv run ruff check .
 uv run ruff format --check .
 uv run mypy
-uv run pytest -W error::DeprecationWarning
+make test
+
 uv run lm train --config configs/char_tiny.yaml --dry-run --device cpu
 ```
 

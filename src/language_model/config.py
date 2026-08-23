@@ -28,6 +28,9 @@ class DataConfig:
     window_mode: str = "document"
     split_strategy: str = "document_count"
     group_by_source: bool = False
+    source_url: str | None = None
+    source_version: str | None = None
+    source_license: str | None = None
 
 
 @dataclass(frozen=True)
@@ -223,6 +226,13 @@ def validate_config(cfg: ExperimentConfig) -> None:
     )
     if not d.dataset_name.strip():
         raise ConfigError("data.dataset_name must not be empty")
+    for name, value in (
+        ("source_url", d.source_url),
+        ("source_version", d.source_version),
+        ("source_license", d.source_license),
+    ):
+        if value is not None and not value.strip():
+            raise ConfigError(f"data.{name} must be non-empty when provided")
     if d.context_length < 2:
         raise ConfigError("data.context_length must be at least 2")
     if not 1 <= d.stride <= d.context_length:
